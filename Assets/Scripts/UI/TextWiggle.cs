@@ -10,7 +10,6 @@ public class TextWiggle : MonoBehaviour
     public float duration = 3f;
     public float angle = 5f;
 
-    public GameObject textBox;
     Sequence DOTwiggle;
 
     void Start()

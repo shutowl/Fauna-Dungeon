@@ -22,7 +22,7 @@ public class MapStatController : MonoBehaviour
         {
             exitTimer -= Time.deltaTime;
         }
-        if (exitTimer < 0)
+        if(exitTimer < 0)
         {
             CloseStats();
             exitTimer = exitDuration;
@@ -32,16 +32,16 @@ public class MapStatController : MonoBehaviour
 
     public void OpenStats()
     {
-        if (moveTimer <= 0)
+        if(moveTimer <= 0)
         {
             moveTimer = moveDuration;
-            GetComponent<RectTransform>().DOAnchorPosX(-GetComponent<RectTransform>().anchoredPosition.x, moveDuration).SetEase(Ease.OutCubic);
+            GetComponent<RectTransform>().DOAnchorPosX(-Mathf.Abs(GetComponent<RectTransform>().anchoredPosition.x), moveDuration).SetEase(Ease.OutCubic);
         }
     }
 
     public void CloseStats()
     {
-        if (moveTimer <= 0)
+        if(moveTimer <= 0)
         {
             moveTimer = moveDuration;
             GetComponent<RectTransform>().DOAnchorPosX(Mathf.Abs(GetComponent<RectTransform>().anchoredPosition.x), moveDuration).SetEase(Ease.OutCubic);
@@ -52,7 +52,7 @@ public class MapStatController : MonoBehaviour
     {
         exitTimer = exitDuration;
         cursorExitted = false;
-        OpenStats();
+        if(moveTimer <= 0) OpenStats();
     }
 
     public void PointerExit()

@@ -9,6 +9,22 @@ using TMPro;
 
 public class DungeonController : MonoBehaviour
 {
+    public enum DungeonState
+    {
+        classSelect,
+        map,
+        room
+    }
+    public enum RoomType
+    {
+        item,
+        blessing,
+        curse,
+        enemy,
+    }
+    public DungeonState currentState;
+    public RoomType currentRoom;
+
     public GameObject curtain;
     public TextMeshProUGUI statText;
     public TextMeshProUGUI[] abilityTexts;
@@ -18,7 +34,6 @@ public class DungeonController : MonoBehaviour
     public GameObject[] playerClasses;  //0 = Druid, 1 = Brawler
     public Transform playerPosition;
     public GameObject player;
-    bool runOngoing = false;
 
     [Header("Windows")]
     public GameObject statWindow;
@@ -26,62 +41,170 @@ public class DungeonController : MonoBehaviour
     public GameObject selectClassWindow;
     public GameObject mapWindow;
     public GameObject inventoryWindow;
+    public GameObject roomWindow;
+
+    [Header("Map")]
+    public GameObject pickRoomText;
+    int currentFloor = 0;
+    public GameObject[] roomButtons;
+
+    [Header("Room")]
+    public Transform playerRoomPosition;
+    public Transform roomObjectPosition;
+    int roomStep = 0;
+    float roomTimer = 0f;
+    public GameObject chest;
+
+    [Header("Item")]
+    public GameObject itemWindow;
+    public GameObject itemDescWindow;
+    public GameObject[] itemSlots;
+    public TextMeshProUGUI itemNameText;
+    public TextMeshProUGUI itemDescText;
+    public List<GameObject> itemPool;
+
+    [Header("Inventory")]
+    public GameObject[] inventorySlots;
+    bool[] inventoryFilled;
 
     void Start()
     {
+        currentState = DungeonState.classSelect;
         curtain.SetActive(true);
         curtain.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(curtain.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.InCubic).SetDelay(0.5f);
-        Destroy(curtain, 3f);
+        //Destroy(curtain, 3f);
 
         statWindow.SetActive(false);
         startButton.gameObject.SetActive(false);
+
+        //Deactivate each room button so player can't just skip rooms and break the game
+        foreach(GameObject room in roomButtons)
+        {
+            room.GetComponent<Button>().interactable = false;
+        }
+
+        //Inventory starts empty
+        inventoryFilled = new bool[6];
+        inventoryFilled[0] = false;
+        inventoryFilled[1] = false;
+        inventoryFilled[2] = false;
+        inventoryFilled[3] = false;
+        inventoryFilled[4] = false;
+        inventoryFilled[5] = false;
+
+        itemDescWindow.SetActive(false);
     }
 
     private void Update()
     {
-        //-------------CLASS SELECTION------------------
-        if (Input.GetMouseButtonDown(0) && !runOngoing)
+        if (currentState == DungeonState.classSelect)
         {
-            //Druid Selected
-            if (EventSystem.current.currentSelectedGameObject == classButtons[0])
+            //-------------CLASS SELECTION------------------
+            if (Input.GetMouseButtonDown(0))
             {
-                statWindow.SetActive(true);
-                classText.text = "Druid Abilities";
+                //Druid Selected
+                if (EventSystem.current.currentSelectedGameObject == classButtons[0])
+                {
+                    statWindow.SetActive(true);
+                    classText.text = "Druid Abilities";
 
-                abilityTexts[0].text = "Nothing";
-                abilityTexts[1].text = "Heal yourself for [3] HP";
-                abilityTexts[2].text = "Vine Attack (Deal [2] DMG)";
-                abilityTexts[3].text = "Summon ATK Sapling (Deal [1] DMG each turn for 3 turns)";
-                abilityTexts[4].text = "Summon DEF Sapling (Grants +[1] DEF for 3 turns)";
-                abilityTexts[5].text = "Ara ara (Sapling powers are twice as effective for 4 turns)";
+                    abilityTexts[0].text = "Nothing";
+                    abilityTexts[1].text = "Heal yourself for [3] HP";
+                    abilityTexts[2].text = "Vine Attack (Deal [2] DMG)";
+                    abilityTexts[3].text = "Summon ATK Sapling (Deal [1] DMG each turn for 3 turns)";
+                    abilityTexts[4].text = "Summon DEF Sapling (Grants +[1] DEF for 3 turns)";
+                    abilityTexts[5].text = "Ara ara (Sapling powers are twice as effective for 4 turns)";
 
-                startButton.gameObject.SetActive(true);
+                    startButton.gameObject.SetActive(true);
 
-                SpawnPlayer(playerClasses[0]);
+                    SpawnPlayer(playerClasses[0]);
+                }
+                //Brawler Selected
+                else if (EventSystem.current.currentSelectedGameObject == classButtons[1])
+                {
+                    statWindow.SetActive(true);
+                    classText.text = "Brawler Abilities";
+
+                    abilityTexts[0].text = "Nothing";
+                    abilityTexts[1].text = "Meditate (Heal yourself for [3] HP)";
+                    abilityTexts[2].text = "Block (+[2] DEF)";
+                    abilityTexts[3].text = "Counter (+[1] DEF, Deal [1] DMG on hit, lasts 2 turns)";
+                    abilityTexts[4].text = "Slap (Deal [2] DMG)";
+                    abilityTexts[5].text = "Double Slap (Deal [2] DMG twice)";
+
+                    startButton.gameObject.SetActive(true);
+
+                    SpawnPlayer(playerClasses[1]);
+                }
+                else if (EventSystem.current.currentSelectedGameObject == null)
+                {
+                    if (this.player != null) Destroy(this.player);
+
+                    statWindow.SetActive(false);
+                    startButton.gameObject.SetActive(false);
+                }
             }
-            //Brawler Selected
-            else if (EventSystem.current.currentSelectedGameObject == classButtons[1])
+        }
+        //------------MAP TRAVERSAL-------------
+        else if(currentState == DungeonState.map)
+        {
+            if(currentFloor == 0)
             {
-                statWindow.SetActive(true);
-                classText.text = "Brawler Abilities";
-
-                abilityTexts[0].text = "Nothing";
-                abilityTexts[1].text = "Nothing";
-                abilityTexts[2].text = "Block (+[2] DEF)";
-                abilityTexts[3].text = "Counter (+[1] DEF, Deal [1] DMG on hit, lasts 2 turns)";
-                abilityTexts[4].text = "Slap (Deal [2] DMG)";
-                abilityTexts[5].text = "Double Slap (Deal [2] DMG twice)";
-
-                startButton.gameObject.SetActive(true);
-
-                SpawnPlayer(playerClasses[1]);
+                //Guaranteed item room
+                if(EventSystem.current.currentSelectedGameObject == roomButtons[0])
+                {
+                    MoveToRoom(0);
+                    currentState = DungeonState.room;
+                    currentRoom = RoomType.item;
+                }
             }
-            else if (EventSystem.current.currentSelectedGameObject == null)
+            else if(currentFloor == 1)
             {
-                if (this.player != null) Destroy(this.player);
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[1])
+                {
+                    MoveToRoom(1);
+                }
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[2])
+                {
+                    MoveToRoom(1);
+                }
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[3])
+                {
+                    MoveToRoom(3);
+                }
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[4])
+                {
+                    MoveToRoom(4);
+                }
+            }
+        }
+        //-----------ROOMS---------------
+        else if(currentState == DungeonState.room)
+        {
+            if(currentRoom == RoomType.item)
+            {
+                if (roomStep == 0)
+                {
+                    //Place Chest
+                    SpawnChest(chest);
+                    //Open curtain
+                    curtain.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(curtain.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.InCubic).SetDelay(2.5f);
+                    //Move player again
+                    playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
 
-                statWindow.SetActive(false);
-                startButton.gameObject.SetActive(false);
+                    roomTimer = 3.5f;   //Wait for stage to finish setting up
+                    roomStep = 1;
+                }
+                else if(roomStep == 1)
+                {
+                    roomTimer -= Time.deltaTime;
+
+                    if(roomTimer <= 0)
+                    {
+
+                        roomStep = 2;
+                    }
+                }
             }
         }
     }
@@ -92,6 +215,7 @@ public class DungeonController : MonoBehaviour
         StartCoroutine(DelayedLoadScene(0f, "Menu"));
     }
 
+    //Transition from SelectClass to Map
     public void StartRun()
     {
         //Move all windows downwards
@@ -103,7 +227,11 @@ public class DungeonController : MonoBehaviour
         //Move player
         playerPosition.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, -370), 2f).SetEase(Ease.InOutCubic);
 
-        runOngoing = true;
+        MovePickRoomText(true, 2f);
+
+        roomButtons[0].GetComponent<Button>().interactable = true;
+
+        currentState = DungeonState.map;
     }
 
     IEnumerator DelayedLoadScene(float sec, string scene)
@@ -120,5 +248,117 @@ public class DungeonController : MonoBehaviour
         RectTransform playerRect = this.player.GetComponent<RectTransform>();
         playerRect.anchoredPosition = Vector2.zero;
         playerRect.DOJumpAnchorPos(new Vector2(playerRect.anchoredPosition.x, playerRect.anchoredPosition.y), 10, 1, 0.2f);
+    }
+
+    void SpawnChest(GameObject chest)
+    {
+        if (this.chest != null) Destroy(this.chest);
+
+        this.chest = Instantiate(chest, roomObjectPosition);
+        this.chest.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+    }
+
+    void MovePickRoomText(bool onscreen, float delay)
+    {
+        if (onscreen)
+        {
+            pickRoomText.GetComponent<RectTransform>().DOAnchorPosY(-Mathf.Abs(pickRoomText.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+        }
+        else
+        {
+            pickRoomText.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(pickRoomText.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+
+        }
+    }
+
+    void MoveToRoom(int room)
+    {
+        //Remove pick room text
+        MovePickRoomText(false, 0);
+        //Move player first
+        playerPosition.transform.DOMove(roomButtons[room].transform.position, 1f).SetEase(Ease.OutCubic);
+        //Close curtain
+        curtain.GetComponent<RectTransform>().DOAnchorPosY(-curtain.GetComponent<RectTransform>().anchoredPosition.y, 1f).SetEase(Ease.OutCubic).SetDelay(1f);
+        //Move stage and player
+        roomWindow.GetComponent<RectTransform>().DOAnchorPosX(0, 0).SetDelay(2f);
+        playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-700-Screen.width, 0), 0.1f).SetDelay(2.1f);
+        /*
+        //Open curtain
+        curtain.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(curtain.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.InCubic).SetDelay(2.5f);
+        //Move player again
+        playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-1920, 0), 1f).SetDelay(3.5f);
+        */
+    }
+
+    public void MoveItemWindow(float delay, bool chest)
+    {
+        if (chest)
+        {
+            itemSlots[0].SetActive(true);
+            itemSlots[1].SetActive(true);
+            itemSlots[2].SetActive(true);
+
+            //Randomize all items
+            int rng1 = Random.Range(0, itemPool.Count);
+            ChangeItem(0, itemPool[rng1]);
+            int rng2 = Random.Range(0, itemPool.Count);
+            while(rng2 == rng1)
+            {
+                rng2 = Random.Range(0, itemPool.Count);
+            }
+            ChangeItem(1, itemPool[rng2]);
+            int rng3 = Random.Range(0, itemPool.Count);
+            while (rng3 == rng1 || rng3 == rng2)
+            {
+                rng3 = Random.Range(0, itemPool.Count);
+            }
+            ChangeItem(2, itemPool[rng3]);
+
+        }
+        //enemy item drop (only 1 item drop)
+        else
+        {
+            itemSlots[0].SetActive(false);
+            itemSlots[1].SetActive(true);
+            itemSlots[2].SetActive(false);
+
+            //Randomize only middle item
+            int rng = Random.Range(0, itemPool.Count);
+            ChangeItem(1, itemPool[rng]);
+        }
+        itemWindow.GetComponent<RectTransform>().DOAnchorPosY(-Mathf.Abs(itemWindow.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+    }
+
+    public void CloseItemWindow(float delay)
+    {
+        itemWindow.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(itemWindow.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+    }
+
+    public void ChangeItem(int itemNum, GameObject item)
+    {
+        //itemNum = position
+        //item = actual item
+
+        GameObject createdItem = Instantiate(item, itemSlots[itemNum].transform);
+        createdItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+    }
+
+    public void ChangeItemDescription(string itemName, string itemDesc)
+    {
+        itemNameText.text = itemName;
+        itemDescText.text = itemDesc;
+    }
+
+    public void ObtainItem(GameObject item)
+    {
+        for(int i = 0; i < inventoryFilled.Length; i++)
+        {
+            if(inventoryFilled[i] == false)
+            {
+                item.transform.DOMove(inventorySlots[i].transform.position, 1f).SetEase(Ease.OutCubic);
+                item.transform.parent = inventorySlots[i].transform;
+                break;
+            }
+        }
     }
 }

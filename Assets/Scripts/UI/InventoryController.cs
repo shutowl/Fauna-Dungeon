@@ -44,7 +44,7 @@ public class InventoryController : MonoBehaviour
         if(moveTimer <= 0)
         {
             moveTimer = moveDuration;
-            GetComponent<RectTransform>().DOAnchorPosX(-GetComponent<RectTransform>().anchoredPosition.x, moveDuration).SetEase(Ease.OutCubic);
+            GetComponent<RectTransform>().DOAnchorPosX(-Mathf.Abs(GetComponent<RectTransform>().anchoredPosition.x), moveDuration).SetEase(Ease.OutCubic);
         }
     }
 
@@ -52,7 +52,7 @@ public class InventoryController : MonoBehaviour
     {
         exitTimer = exitDuration;
         cursorExitted = false;
-        OpenInventory();
+        if(moveTimer <= 0) OpenInventory();
     }
 
     public void PointerExit()
