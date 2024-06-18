@@ -65,6 +65,10 @@ public class PlayerController : MonoBehaviour
             abilityValues[5] = 0;
             abilityTexts[5].text = "Ara ara(Saplings powers are x2 as effective for 4 turns)";
             upgradable[5] = false;
+
+            maxHP = currentHP = 10;
+            DEF = 0;
+            maxRerolls = currentRerolls = 3;
         }
         else if (newClass.Equals("brawler"))
         {
@@ -94,13 +98,16 @@ public class PlayerController : MonoBehaviour
             abilityTexts[5].text = "Double Slap (Deal [" + abilityValues[5] + "] DMG twice)";
             upgradable[5] = true;
 
+            maxHP = currentHP = 15;
+            DEF = 0;
+            maxRerolls = currentRerolls = 2;
         }
         Debug.Log(abilityValues[0] + " " + abilityValues[1] + " " + abilityValues[2] + " " + abilityValues[3] + " " + abilityValues[4] + " " + abilityValues[5]);
     }
 
     public void UpgradeAbility(int abilityNum, int addedValue)
     {
-        int totalValue = abilityValues[abilityNum] + addedValue;
+        int totalValue = Mathf.Clamp(abilityValues[abilityNum] + addedValue, 0, 20);
 
         //abilityTexts[abilityNum].text = abilityTexts[abilityNum].text.Replace((char)abilityValues[abilityNum], (char)totalValue);
         abilityValues[abilityNum] = totalValue;
@@ -146,19 +153,52 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /*        slotText[0].text = "Heal for 5 HP";
+        slotText[1].text = "Increase Max HP by 3";
+        slotText[2].text = "Raise max rerolls by 1";
+        slotText[3].text = "Add +1 to 2 dice faces"; 
+        slotText[4].text = "Add +2 to 1 dice face";
+        slotText[5].text = "Copy a dice face onto another dice face";
+    }
+
+    public void SetupCurses()
+    {
+        roomType = "curse";
+
+        slotText[0].text = "Never punished (no effect)";
+        slotText[1].text = "Take 3 DMG";
+        slotText[2].text = "Lowers max HP by 3";
+        slotText[3].text = "Lowers max rerolls by 1";
+        slotText[4].text = "Subtract [1] to 1 die face";
+        slotText[5].text = "Subtract [2] to 1 die face";*/
+
     public void Damage(int value)
     {
+        currentHP = Mathf.Clamp(currentHP - value, 0, maxHP);
 
+        if(currentHP == 0)
+        {
+            //game over
+
+            //play broom sweeping animation
+        }
     }
 
     public void Heal(int value)
     {
-
+        currentHP = Mathf.Clamp(currentHP + value, 0, maxHP);
     }
 
     public void IncreaseMaxHP(int value)
     {
+        maxHP += value;
+        currentHP = maxHP;
+    }
 
+    public void IncreaseMaxRerolls(int value)
+    {
+        maxRerolls += value;
+        currentRerolls = maxRerolls;
     }
 
 

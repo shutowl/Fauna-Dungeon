@@ -155,7 +155,8 @@ public class DungeonController : MonoBehaviour
                 }
                 else if (EventSystem.current.currentSelectedGameObject == null)
                 {
-                    if (this.player != null) Destroy(this.player);
+                    playerClasses[0].SetActive(false);
+                    playerClasses[1].SetActive(false);
 
                     statWindow.SetActive(false);
                     startButton.gameObject.SetActive(false);
@@ -354,6 +355,53 @@ public class DungeonController : MonoBehaviour
                 }
             }
             //---------CURSE ROOM-------------
+            else if (currentRoom == RoomType.curse)
+            {
+                if (roomStep == 0)
+                {
+                    //Place Statue
+                    SpawnCurse(curseStatue);
+                    //Open curtain
+                    MoveCurtain(true, 2.5f);
+                    //Move Player
+                    playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
+
+                    roomTimer = 1f;
+                    roomStep = 1;
+                }
+                else if (roomStep == 1)
+                {
+                    //Room Logic
+                    //Incremented by 
+                }
+                else if (roomStep == 2)
+                {
+                    roomTimer -= Time.deltaTime;
+
+                    if (roomTimer <= 0)
+                    {
+                        //Close curtain
+                        MoveCurtain(false, 1f);
+                        //Move room back
+                        roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
+                        //Move player back
+                        playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
+                        //Open curtain
+                        MoveCurtain(true, 2.3f);
+                        //Move Map and Player down a bit
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+
+                        currentFloor++;
+                        currentState = DungeonState.map;
+                    }
+                }
+            }
+            //---------ENEMY ROOM---------------
+            else if (currentRoom == RoomType.enemy)
+            {
+
+            }
         }
     }
 
@@ -423,6 +471,14 @@ public class DungeonController : MonoBehaviour
         GameObject newStatue = this.blessingStatue;
 
         newStatue = Instantiate(blessingStatue, roomObjectPosition);
+        newStatue.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, newStatue.GetComponent<RectTransform>().anchoredPosition.y);
+    }
+
+    void SpawnCurse(GameObject curseStatue)
+    {
+        GameObject newStatue = this.curseStatue;
+
+        newStatue = Instantiate(curseStatue, roomObjectPosition);
         newStatue.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, newStatue.GetComponent<RectTransform>().anchoredPosition.y);
     }
 
@@ -588,7 +644,7 @@ public class DungeonController : MonoBehaviour
         }
         if (type.Equals("curse"))
         {
-
+            FindObjectOfType<RouletteWheel>().SetupCurses();
         }
         if (type.Equals("player"))
         {

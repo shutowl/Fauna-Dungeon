@@ -34,7 +34,7 @@ public class RouletteWheel : MonoBehaviour
         spinDuration = Random.Range(2.5f, 3.5f);
         slotIndex = 0;
 
-        statWindowController = FindAnyObjectByType<MapStatController>();
+        statWindowController = FindObjectOfType<MapStatController>();
         dungeonController = FindAnyObjectByType<DungeonController>();
         playerController = FindAnyObjectByType<PlayerController>();
     }
@@ -73,7 +73,8 @@ public class RouletteWheel : MonoBehaviour
                     case "blessing":
                         switch (slotIndex)
                         {
-                            case 0: //Heal 5 HP
+                            //Heal 5 HP
+                            case 0:
                                 //Heal Player
                                 playerController.Heal(5);
                                 //Simple VFX animation or text
@@ -81,7 +82,8 @@ public class RouletteWheel : MonoBehaviour
                                 dungeonController.SetNextRoomTimer(1f);
                                 Debug.Log("Healed 5 HP!");
                                 break;
-                            case 1: //Max HP +3
+                            //Max HP +3
+                            case 1:
                                 //Increase max HP
                                 playerController.IncreaseMaxHP(3);
                                 //Simple VFX animation or text
@@ -89,11 +91,19 @@ public class RouletteWheel : MonoBehaviour
                                 dungeonController.SetNextRoomTimer(1f);
                                 Debug.Log("Max HP +3!");
                                 break;
-                            case 2: //+1 to 2 dice
+                            //Max rerolls +1
+                            case 2:
+                                //Increase max rerolls
+                                playerController.IncreaseMaxHP(3);
+
+                                dungeonController.SetNextRoomTimer(1f);
+                                Debug.Log("Max Rerolls +1!");
+                                break;
+                            case 3: //+1 to 2 dice
                                 //Open stat window
                                 statWindowController.OpenStats(true);
                                 //Make specific abilities clickable
-                                if(playerController.curClass == PlayerController.Class.druid)
+                                if (playerController.curClass == PlayerController.Class.druid)
                                 {
                                     statWindowController.SetUpgradeValue(1, 2);
                                     statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
@@ -111,21 +121,25 @@ public class RouletteWheel : MonoBehaviour
                                     statWindowController.abilityButtons[5].GetComponent<Button>().interactable = true;
                                 }
                                 break;
-                            case 3: //+2 to 1 dice
+                            case 4: //+2 to 1 dice
                                 //Open stat window
                                 statWindowController.OpenStats(true);
                                 //Make specific abilities clickable
                                 if (playerController.curClass == PlayerController.Class.druid)
                                 {
                                     statWindowController.SetUpgradeValue(2, 1);
+                                    statWindowController.abilityButtons[0].GetComponent<Button>().interactable = false;
                                     statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
                                     statWindowController.abilityButtons[2].GetComponent<Button>().interactable = true;
                                     statWindowController.abilityButtons[3].GetComponent<Button>().interactable = true;
                                     statWindowController.abilityButtons[4].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[5].GetComponent<Button>().interactable = false;
+
                                 }
                                 else //if brawler
                                 {
                                     statWindowController.SetUpgradeValue(2, 1);
+                                    statWindowController.abilityButtons[0].GetComponent<Button>().interactable = false;
                                     statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
                                     statWindowController.abilityButtons[2].GetComponent<Button>().interactable = true;
                                     statWindowController.abilityButtons[3].GetComponent<Button>().interactable = true;
@@ -133,7 +147,7 @@ public class RouletteWheel : MonoBehaviour
                                     statWindowController.abilityButtons[5].GetComponent<Button>().interactable = true;
                                 }
                                 break;
-                            case 4: //copy dice
+                            case 5: //copy dice
                                 //Open stat window
                                 statWindowController.OpenStats(true);
                                 //Make all abilities clickable
@@ -147,17 +161,82 @@ public class RouletteWheel : MonoBehaviour
                                 */
 
                                 break;
-                            case 5: //x2 dice chance buff
-                                GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
-                                //Simple VFX animation or text
-
-                                dungeonController.SetNextRoomTimer(1f);
-                                Debug.Log("Gained x2 dice chance buff");
-                                break;
                         }
                         break;
                     case "curse":
+                        switch (slotIndex)
+                        {
+                            //No effect
+                            case 0: 
+                                //Simple VFX animation or text
 
+                                dungeonController.SetNextRoomTimer(1f);
+                                Debug.Log("Never Punished");
+                                break;
+                            //Take 3 DMG
+                            case 1:
+                                //Increase max HP
+                                playerController.Damage(3);
+                                //Simple VFX animation or text
+
+                                dungeonController.SetNextRoomTimer(1f);
+                                Debug.Log("Max HP +3!");
+                                break;
+                            //Lower max HP by 3
+                            case 2:
+                                playerController.IncreaseMaxHP(-3);
+                                break;
+                            //Lower max reroll by 1
+                            case 3:
+                                playerController.IncreaseMaxRerolls(-1);
+                                break;
+                            //-1 to 1 die
+                            case 4:
+                                //Open stat window
+                                statWindowController.OpenStats(true);
+                                //Make specific abilities clickable
+                                if (playerController.curClass == PlayerController.Class.druid)
+                                {
+                                    statWindowController.SetUpgradeValue(-1, 1);
+                                    statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[2].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[3].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[4].GetComponent<Button>().interactable = true;
+                                }
+                                else //if brawler
+                                {
+                                    statWindowController.SetUpgradeValue(-1, 1);
+                                    statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[2].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[3].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[4].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[5].GetComponent<Button>().interactable = true;
+                                }
+                                break;
+                            //-2 to 1 die
+                            case 5: 
+                                //Open stat window
+                                statWindowController.OpenStats(true);
+                                //Make specific abilities clickable
+                                if (playerController.curClass == PlayerController.Class.druid)
+                                {
+                                    statWindowController.SetUpgradeValue(-2, 1);
+                                    statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[2].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[3].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[4].GetComponent<Button>().interactable = true;
+                                }
+                                else //if brawler
+                                {
+                                    statWindowController.SetUpgradeValue(-2, 1);
+                                    statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[2].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[3].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[4].GetComponent<Button>().interactable = true;
+                                    statWindowController.abilityButtons[5].GetComponent<Button>().interactable = true;
+                                }
+                                break;
+                        }
                         break;
                     case "player":
 
@@ -184,17 +263,22 @@ public class RouletteWheel : MonoBehaviour
 
         slotText[0].text = "Heal for 5 HP";
         slotText[1].text = "Increase Max HP by 3";
-        slotText[2].text = "Add +1 to 2 dice faces";
-        slotText[3].text = "Add +2 to 1 dice face";
-        slotText[4].text = "Copy a dice face onto another dice face";
-        slotText[5].text = "Grants a chance for dice face to activate twice";
+        slotText[2].text = "Raise max rerolls by 1";
+        slotText[3].text = "Add +1 to 2 dice faces"; 
+        slotText[4].text = "Add +2 to 1 dice face";
+        slotText[5].text = "Copy a dice face onto another dice face";
     }
 
     public void SetupCurses()
     {
         roomType = "curse";
 
-
+        slotText[0].text = "Never punished (no effect)";
+        slotText[1].text = "Take 3 DMG";
+        slotText[2].text = "Lowers max HP by 3";
+        slotText[3].text = "Lowers max rerolls by 1";
+        slotText[4].text = "Subtract [1] to 1 die face";
+        slotText[5].text = "Subtract [2] to 1 die face";
     }
 
     public void SetupPlayerAttacks()
