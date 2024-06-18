@@ -25,6 +25,6 @@ public class Item : MonoBehaviour
         Debug.Log(itemName + " selected!");
 
         dungeonController.GetComponent<DungeonController>().ObtainItem(this.gameObject);
-        dungeonController.GetComponent<DungeonController>().CloseItemWindow(2f);
+        dungeonController.GetComponent<DungeonController>().CloseItemWindow(1f);
     }
 }

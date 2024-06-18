@@ -10,6 +10,7 @@ public class InventoryController : MonoBehaviour
     bool cursorExitted = false;
     public float exitDuration = 1f; //Amount of time needed for inventory to automatically close when cursor exits
     float exitTimer = 1f;
+    new bool enabled = true;
 
     private void Update()
     {
@@ -32,19 +33,19 @@ public class InventoryController : MonoBehaviour
 
     public void OpenInventory()
     {
-        if(moveTimer <= 0)
+        if(moveTimer <= 0 && enabled)
         {
             moveTimer = moveDuration;
-            GetComponent<RectTransform>().DOAnchorPosX(Mathf.Abs(GetComponent<RectTransform>().anchoredPosition.x), moveDuration).SetEase(Ease.OutCubic);
+            GetComponent<RectTransform>().DOAnchorPosX(297.66f, moveDuration).SetEase(Ease.OutCubic);
         }
     }
 
     public void CloseInventory()
     {
-        if(moveTimer <= 0)
+        if(moveTimer <= 0 && enabled)
         {
             moveTimer = moveDuration;
-            GetComponent<RectTransform>().DOAnchorPosX(-Mathf.Abs(GetComponent<RectTransform>().anchoredPosition.x), moveDuration).SetEase(Ease.OutCubic);
+            GetComponent<RectTransform>().DOAnchorPosX(-297.66f, moveDuration).SetEase(Ease.OutCubic);
         }
     }
 
@@ -58,5 +59,10 @@ public class InventoryController : MonoBehaviour
     public void PointerExit()
     {
         cursorExitted = true;
+    }
+
+    public void Enabled(bool enabled)
+    {
+        this.enabled = enabled;
     }
 }

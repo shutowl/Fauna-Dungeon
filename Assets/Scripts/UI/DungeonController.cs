@@ -47,13 +47,19 @@ public class DungeonController : MonoBehaviour
     public GameObject pickRoomText;
     int currentFloor = 0;
     public GameObject[] roomButtons;
+    GameObject lastRoom;
+    public Vector2 bottomMapPos;
 
     [Header("Room")]
     public Transform playerRoomPosition;
     public Transform roomObjectPosition;
+    public Transform enemyRoomPosition;
     int roomStep = 0;
     float roomTimer = 0f;
     public GameObject chest;
+    public GameObject blessingStatue;
+    public GameObject curseStatue;
+    public GameObject[] enemies;
 
     [Header("Item")]
     public GameObject itemWindow;
@@ -67,11 +73,14 @@ public class DungeonController : MonoBehaviour
     public GameObject[] inventorySlots;
     bool[] inventoryFilled;
 
+    [Header("Roulette")]
+    public GameObject rouletteWindow;
+
     void Start()
     {
         currentState = DungeonState.classSelect;
         curtain.SetActive(true);
-        curtain.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(curtain.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.InCubic).SetDelay(0.5f);
+        MoveCurtain(false, 0.5f);
         //Destroy(curtain, 3f);
 
         statWindow.SetActive(false);
@@ -81,6 +90,7 @@ public class DungeonController : MonoBehaviour
         foreach(GameObject room in roomButtons)
         {
             room.GetComponent<Button>().interactable = false;
+            room.GetComponent<JumpyButtons>().enabled = false;
         }
 
         //Inventory starts empty
@@ -148,39 +158,105 @@ public class DungeonController : MonoBehaviour
         //------------MAP TRAVERSAL-------------
         else if(currentState == DungeonState.map)
         {
-            if(currentFloor == 0)
+            //Guaranteed item room
+            if (currentFloor == 0)
             {
-                //Guaranteed item room
                 if(EventSystem.current.currentSelectedGameObject == roomButtons[0])
                 {
                     MoveToRoom(0);
                     currentState = DungeonState.room;
                     currentRoom = RoomType.item;
+
+                    roomButtons[0].GetComponent<Button>().interactable = false;
+                    roomButtons[0].GetComponent<JumpyButtons>().enabled = false;
                 }
             }
+            //Choose between 4 rooms
             else if(currentFloor == 1)
             {
+                roomButtons[1].GetComponent<Button>().interactable = true;
+                roomButtons[2].GetComponent<Button>().interactable = true;
+                roomButtons[3].GetComponent<Button>().interactable = true;
+                roomButtons[4].GetComponent<Button>().interactable = true;
+                roomButtons[1].GetComponent<JumpyButtons>().enabled = true;
+                roomButtons[2].GetComponent<JumpyButtons>().enabled = true;
+                roomButtons[3].GetComponent<JumpyButtons>().enabled = true;
+                roomButtons[4].GetComponent<JumpyButtons>().enabled = true;
+
                 if (EventSystem.current.currentSelectedGameObject == roomButtons[1])
                 {
                     MoveToRoom(1);
+                    currentState = DungeonState.room;
+                    currentRoom = RoomType.blessing;
+
+                    roomButtons[1].GetComponent<Button>().interactable = false;
+                    roomButtons[2].GetComponent<Button>().interactable = false;
+                    roomButtons[3].GetComponent<Button>().interactable = false;
+                    roomButtons[4].GetComponent<Button>().interactable = false;
+                    roomButtons[1].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[2].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[3].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[4].GetComponent<JumpyButtons>().enabled = false;
                 }
                 if (EventSystem.current.currentSelectedGameObject == roomButtons[2])
                 {
                     MoveToRoom(1);
+                    currentState = DungeonState.room;
+                    currentRoom = RoomType.curse;
+
+                    roomButtons[1].GetComponent<Button>().interactable = false;
+                    roomButtons[2].GetComponent<Button>().interactable = false;
+                    roomButtons[3].GetComponent<Button>().interactable = false;
+                    roomButtons[4].GetComponent<Button>().interactable = false;
+                    roomButtons[1].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[2].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[3].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[4].GetComponent<JumpyButtons>().enabled = false;
                 }
                 if (EventSystem.current.currentSelectedGameObject == roomButtons[3])
                 {
                     MoveToRoom(3);
+                    currentState = DungeonState.room;
+                    currentRoom = RoomType.item;
+
+                    roomButtons[1].GetComponent<Button>().interactable = false;
+                    roomButtons[2].GetComponent<Button>().interactable = false;
+                    roomButtons[3].GetComponent<Button>().interactable = false;
+                    roomButtons[4].GetComponent<Button>().interactable = false;
+                    roomButtons[1].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[2].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[3].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[4].GetComponent<JumpyButtons>().enabled = false;
                 }
                 if (EventSystem.current.currentSelectedGameObject == roomButtons[4])
                 {
                     MoveToRoom(4);
+                    currentState = DungeonState.room;
+                    currentRoom = RoomType.blessing;
+
+                    roomButtons[1].GetComponent<Button>().interactable = false;
+                    roomButtons[2].GetComponent<Button>().interactable = false;
+                    roomButtons[3].GetComponent<Button>().interactable = false;
+                    roomButtons[4].GetComponent<Button>().interactable = false;
+                    roomButtons[1].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[2].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[3].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[4].GetComponent<JumpyButtons>().enabled = false;
+                }
+            }
+            //Guaranteed enemy room
+            else if(currentFloor == 2)
+            {
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[5])
+                {
+                    MoveToRoom(5);
                 }
             }
         }
         //-----------ROOMS---------------
         else if(currentState == DungeonState.room)
         {
+            //---------ITEM ROOM---------
             if(currentRoom == RoomType.item)
             {
                 if (roomStep == 0)
@@ -188,24 +264,89 @@ public class DungeonController : MonoBehaviour
                     //Place Chest
                     SpawnChest(chest);
                     //Open curtain
-                    curtain.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(curtain.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.InCubic).SetDelay(2.5f);
+                    MoveCurtain(true, 2.5f);
                     //Move player again
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
 
-                    roomTimer = 3.5f;   //Wait for stage to finish setting up
+                    inventoryWindow.GetComponent<InventoryController>().Enabled(false);
+
+                    roomTimer = 1f;
                     roomStep = 1;
                 }
                 else if(roomStep == 1)
+                {
+                    //Room Logic
+                    //Incremented by CloseItemWindow or (something else)
+                }
+                else if(roomStep == 2)
                 {
                     roomTimer -= Time.deltaTime;
 
                     if(roomTimer <= 0)
                     {
+                        //Close curtain
+                        MoveCurtain(false, 1f);
+                        //Move room back
+                        roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
+                        //Move player back
+                        playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
+                        //Open curtain
+                        MoveCurtain(true, 2.3f);
+                        //Move Map and Player down a bit
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
 
-                        roomStep = 2;
+                        inventoryWindow.GetComponent<InventoryController>().Enabled(true);
+
+                        currentFloor++;
+                        currentState = DungeonState.map;
                     }
                 }
             }
+            //---------BLESSING ROOM------------
+            else if(currentRoom == RoomType.blessing)
+            {
+                if (roomStep == 0)
+                {
+                    //Place Statue
+                    SpawnBlessing(blessingStatue);
+                    //Open curtain
+                    MoveCurtain(true, 2.5f);
+                    //Move Player
+                    playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
+
+                    roomTimer = 1f;
+                    roomStep = 1;
+                }
+                else if (roomStep == 1)
+                {
+                    //Room Logic
+                    //Incremented by 
+                }
+                else if (roomStep == 2)
+                {
+                    roomTimer -= Time.deltaTime;
+
+                    if (roomTimer <= 0)
+                    {
+                        //Close curtain
+                        MoveCurtain(false, 1f);
+                        //Move room back
+                        roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
+                        //Move player back
+                        playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
+                        //Open curtain
+                        MoveCurtain(true, 2.3f);
+                        //Move Map and Player down a bit
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+
+                        currentFloor++;
+                        currentState = DungeonState.map;
+                    }
+                }
+            }
+            //---------CURSE ROOM-------------
         }
     }
 
@@ -225,11 +366,12 @@ public class DungeonController : MonoBehaviour
         mapStatWindow.GetComponent<RectTransform>().DOAnchorPosY(-mapStatWindow.GetComponent<RectTransform>().anchoredPosition.y, 2f).SetEase(Ease.InOutCubic);
 
         //Move player
-        playerPosition.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, -370), 2f).SetEase(Ease.InOutCubic);
+        playerPosition.GetComponent<RectTransform>().DOAnchorPos(bottomMapPos, 2f).SetEase(Ease.InOutCubic);
 
         MovePickRoomText(true, 2f);
 
         roomButtons[0].GetComponent<Button>().interactable = true;
+        roomButtons[0].GetComponent<JumpyButtons>().enabled = true;
 
         currentState = DungeonState.map;
     }
@@ -252,10 +394,18 @@ public class DungeonController : MonoBehaviour
 
     void SpawnChest(GameObject chest)
     {
-        if (this.chest != null) Destroy(this.chest);
+        GameObject newChest = this.chest;
 
-        this.chest = Instantiate(chest, roomObjectPosition);
-        this.chest.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+        newChest = Instantiate(chest, roomObjectPosition);
+        newChest.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+    }
+
+    void SpawnBlessing(GameObject blessingStatue)
+    {
+        GameObject newStatue = this.blessingStatue;
+
+        newStatue = Instantiate(blessingStatue, roomObjectPosition);
+        newStatue.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, newStatue.GetComponent<RectTransform>().anchoredPosition.y);
     }
 
     void MovePickRoomText(bool onscreen, float delay)
@@ -273,12 +423,19 @@ public class DungeonController : MonoBehaviour
 
     void MoveToRoom(int room)
     {
+        //remove any objects if any exist
+        if (roomObjectPosition.transform.childCount > 0) Destroy(roomObjectPosition.transform.GetChild(0).gameObject, 1f);
+        if (enemyRoomPosition.transform.childCount > 0) Destroy(enemyRoomPosition.transform.GetChild(0).gameObject, 1f);
+
+        roomStep = 0;
+        //Record last room visited
+        lastRoom = roomButtons[room];
         //Remove pick room text
         MovePickRoomText(false, 0);
         //Move player first
         playerPosition.transform.DOMove(roomButtons[room].transform.position, 1f).SetEase(Ease.OutCubic);
         //Close curtain
-        curtain.GetComponent<RectTransform>().DOAnchorPosY(-curtain.GetComponent<RectTransform>().anchoredPosition.y, 1f).SetEase(Ease.OutCubic).SetDelay(1f);
+        MoveCurtain(false, 1f);
         //Move stage and player
         roomWindow.GetComponent<RectTransform>().DOAnchorPosX(0, 0).SetDelay(2f);
         playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-700-Screen.width, 0), 0.1f).SetDelay(2.1f);
@@ -327,11 +484,18 @@ public class DungeonController : MonoBehaviour
             ChangeItem(1, itemPool[rng]);
         }
         itemWindow.GetComponent<RectTransform>().DOAnchorPosY(-Mathf.Abs(itemWindow.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+
+        GameObject[] allItems = GameObject.FindGameObjectsWithTag("Item");
+        foreach (GameObject x in allItems)
+        {
+            x.GetComponent<Button>().interactable = true;
+        }
     }
 
     public void CloseItemWindow(float delay)
     {
         itemWindow.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(itemWindow.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+        roomStep++;
     }
 
     public void ChangeItem(int itemNum, GameObject item)
@@ -356,9 +520,54 @@ public class DungeonController : MonoBehaviour
             if(inventoryFilled[i] == false)
             {
                 item.transform.DOMove(inventorySlots[i].transform.position, 1f).SetEase(Ease.OutCubic);
-                item.transform.parent = inventorySlots[i].transform;
+                item.transform.SetParent(inventorySlots[i].transform);
+                inventoryFilled[i] = true;
+                
+                for(int j = 0; j < itemPool.Count; j++)
+                {
+                    if (item.GetComponent<Item>().itemName.Equals(itemPool[j].GetComponent<Item>().itemName))
+                    {
+                        itemPool.RemoveAt(j);
+                        break;
+                    }
+                }
+
                 break;
             }
         }
+
+        GameObject[] allItems = GameObject.FindGameObjectsWithTag("Item");
+        foreach(GameObject x in allItems)
+        {
+            x.GetComponent<Button>().interactable = false;
+        }
+
+        if (itemSlots[0].transform.childCount > 0) Destroy(itemSlots[0].transform.GetChild(0).gameObject, 2f);
+        if (itemSlots[1].transform.childCount > 0) Destroy(itemSlots[1].transform.GetChild(0).gameObject, 2f);
+        if (itemSlots[2].transform.childCount > 0) Destroy(itemSlots[2].transform.GetChild(0).gameObject, 2f);
+    }
+
+    public void MoveCurtain(bool onscreen, float delay)
+    {
+        if (onscreen)
+        {
+            curtain.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(curtain.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.InCubic).SetDelay(delay);
+        }
+        else
+        {
+            curtain.GetComponent<RectTransform>().DOAnchorPosY(-curtain.GetComponent<RectTransform>().anchoredPosition.y, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+        }
+    }
+
+    public void MoveRouletteWindow(float delay, string type)
+    {
+        rouletteWindow.GetComponent<RectTransform>().DOAnchorPosY(-540f, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+        FindObjectOfType<RouletteWheel>().ResetSlots();
+
+        if (type.Equals("blessing"))
+        {
+            FindObjectOfType<RouletteWheel>().SetupBlessings();
+        }
+
     }
 }
