@@ -76,6 +76,9 @@ public class DungeonController : MonoBehaviour
     [Header("Roulette")]
     public GameObject rouletteWindow;
 
+    [Header("Player")]
+    string playerClass;
+
     void Start()
     {
         currentState = DungeonState.classSelect;
@@ -125,6 +128,8 @@ public class DungeonController : MonoBehaviour
                     abilityTexts[4].text = "Summon DEF Sapling (Grants +[1] DEF for 3 turns)";
                     abilityTexts[5].text = "Ara ara (Sapling powers are twice as effective for 4 turns)";
 
+                    playerClass = "druid";
+
                     startButton.gameObject.SetActive(true);
 
                     SpawnPlayer(playerClasses[0]);
@@ -141,6 +146,8 @@ public class DungeonController : MonoBehaviour
                     abilityTexts[3].text = "Counter (+[1] DEF, Deal [1] DMG on hit, lasts 2 turns)";
                     abilityTexts[4].text = "Slap (Deal [2] DMG)";
                     abilityTexts[5].text = "Double Slap (Deal [2] DMG twice)";
+
+                    playerClass = "brawler";
 
                     startButton.gameObject.SetActive(true);
 
@@ -200,7 +207,7 @@ public class DungeonController : MonoBehaviour
                 }
                 if (EventSystem.current.currentSelectedGameObject == roomButtons[2])
                 {
-                    MoveToRoom(1);
+                    MoveToRoom(2);
                     currentState = DungeonState.room;
                     currentRoom = RoomType.curse;
 
@@ -373,6 +380,9 @@ public class DungeonController : MonoBehaviour
         roomButtons[0].GetComponent<Button>().interactable = true;
         roomButtons[0].GetComponent<JumpyButtons>().enabled = true;
 
+        //Setup Player statistics
+        player.GetComponent<PlayerController>().SetupClass(playerClass);
+
         currentState = DungeonState.map;
     }
 
@@ -384,9 +394,17 @@ public class DungeonController : MonoBehaviour
 
     void SpawnPlayer(GameObject player)
     {
-        if(this.player != null) Destroy(this.player);
-
-        this.player = Instantiate(player, playerPosition);
+        if (player == playerClasses[0])
+        {
+            playerClasses[0].SetActive(true);
+            playerClasses[1].SetActive(false);
+        }
+        else
+        {
+            playerClasses[1].SetActive(true);
+            playerClasses[0].SetActive(false);
+        }
+        this.player = player;
         RectTransform playerRect = this.player.GetComponent<RectTransform>();
         playerRect.anchoredPosition = Vector2.zero;
         playerRect.DOJumpAnchorPos(new Vector2(playerRect.anchoredPosition.x, playerRect.anchoredPosition.y), 10, 1, 0.2f);
@@ -568,6 +586,24 @@ public class DungeonController : MonoBehaviour
         {
             FindObjectOfType<RouletteWheel>().SetupBlessings();
         }
+        if (type.Equals("curse"))
+        {
 
+        }
+        if (type.Equals("player"))
+        {
+
+        }
+        if (type.Equals("enemy"))
+        {
+
+        }
+    }
+
+    public void SetNextRoomTimer(float time)
+    {
+        roomStep++;
+        roomTimer = time;
+        rouletteWindow.GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
     }
 }
