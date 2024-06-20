@@ -47,6 +47,7 @@ public class MenuController : MonoBehaviour
     {
         if(buttonMoveTimer <= 0)
         {
+            StartCoroutine(LockCursor(buttonMoveDuration));
             buttonMoveTimer = buttonMoveDuration;
             //Move buttons from offscreen to onscreen
             if (onscreen)
@@ -80,5 +81,12 @@ public class MenuController : MonoBehaviour
     {
         yield return new WaitForSeconds(sec);
         SceneManager.LoadSceneAsync(scene);
+    }
+
+    IEnumerator LockCursor(float sec)
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        yield return new WaitForSeconds(sec);
+        Cursor.lockState = CursorLockMode.None;
     }
 }

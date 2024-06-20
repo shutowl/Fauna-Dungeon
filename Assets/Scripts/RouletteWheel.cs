@@ -25,6 +25,7 @@ public class RouletteWheel : MonoBehaviour
 
     MapStatController statWindowController;
     DungeonController dungeonController;
+    BattleController battleController;
     PlayerController playerController;
 
     private void Start()
@@ -32,18 +33,18 @@ public class RouletteWheel : MonoBehaviour
         spinning = false;
         spinTimer = spinDuration;
         spinDuration = Random.Range(2.5f, 3.5f);
-        slotIndex = 0;
+        slotIndex = Random.Range(0, 6);
 
-        statWindowController = FindObjectOfType<MapStatController>();
-        dungeonController = FindAnyObjectByType<DungeonController>();
-        playerController = FindAnyObjectByType<PlayerController>();
+        statWindowController = GameObject.FindGameObjectWithTag("MapStat").GetComponent<MapStatController>();
+        dungeonController = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>();
+        battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
     }
 
     private void Update()
     {
         if (spinning)
         {
-            spinDuration -= Time.deltaTime;
+            spinTimer -= Time.deltaTime;
             spinRateTimer -= Time.deltaTime;
 
             if(spinRateTimer <= 0)
@@ -57,7 +58,7 @@ public class RouletteWheel : MonoBehaviour
                 spinRateTimer = spinRate;
             }
 
-            if(spinDuration <= 0)
+            if(spinTimer <= 0)
             {
 /*                //------RIGGED SLOTS (for debug ofc)
                 slotWindow[slotIndex].GetComponent<Image>().color = unselectedColor;
@@ -94,7 +95,7 @@ public class RouletteWheel : MonoBehaviour
                             //Max rerolls +1
                             case 2:
                                 //Increase max rerolls
-                                playerController.IncreaseMaxHP(3);
+                                playerController.IncreaseMaxRerolls(1);
 
                                 dungeonController.SetNextRoomTimer(1f);
                                 Debug.Log("Max Rerolls +1!");
@@ -175,8 +176,8 @@ public class RouletteWheel : MonoBehaviour
                                 break;
                             //Take 3 DMG
                             case 1:
-                                //Increase max HP
-                                playerController.Damage(3);
+                                //Take 3 dmg
+                                playerController.Damage(3, 1f);
                                 //Simple VFX animation or text
 
                                 dungeonController.SetNextRoomTimer(1f);
@@ -185,10 +186,14 @@ public class RouletteWheel : MonoBehaviour
                             //Lower max HP by 3
                             case 2:
                                 playerController.IncreaseMaxHP(-3);
+
+                                dungeonController.SetNextRoomTimer(1f);
                                 break;
                             //Lower max reroll by 1
                             case 3:
                                 playerController.IncreaseMaxRerolls(-1);
+
+                                dungeonController.SetNextRoomTimer(1f);
                                 break;
                             //-1 to 1 die
                             case 4:
@@ -239,10 +244,30 @@ public class RouletteWheel : MonoBehaviour
                         }
                         break;
                     case "player":
+                        if (!playerController.IsOffensive(slotIndex))
+                        {
+                            battleController.SetTimer(playerController.PlayDefensiveAbility(slotIndex, 2f));
+                        }
+                        else
+                        {
+                            battleController.SetTimer(playerController.PlayOffensiveAbility(slotIndex, 2f));
+                        }
+                        //Close roulette window
+                        GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
 
                         break;
                     case "enemy":
+                        if (!dungeonController.enemy.GetComponent<Enemy>().IsOffensive(slotIndex))
+                        {
+                            battleController.SetTimer(dungeonController.enemy.GetComponent<Enemy>().PlayDefensiveAbility(slotIndex, 2f));
+                        }
+                        else
+                        {
+                            battleController.SetTimer(dungeonController.enemy.GetComponent<Enemy>().PlayOffensiveAbility(slotIndex, 2f));
+                        }
 
+                        //Close roulette window
+                        GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
                         break;
                 }
             }
@@ -251,7 +276,8 @@ public class RouletteWheel : MonoBehaviour
 
     public void ResetSlots()
     {
-        foreach(GameObject slot in slotWindow)
+        spinButton.interactable = true;
+        foreach (GameObject slot in slotWindow)
         {
             slot.GetComponent<Image>().color = unselectedColor;
         }
@@ -259,7 +285,12 @@ public class RouletteWheel : MonoBehaviour
 
     public void SetupBlessings()
     {
+        spinButton.gameObject.SetActive(true);
+        spinning = false;
+
         roomType = "blessing";
+
+        titleText.text = "Obtain a blessing!";
 
         slotText[0].text = "Heal for 5 HP";
         slotText[1].text = "Increase Max HP by 3";
@@ -267,11 +298,21 @@ public class RouletteWheel : MonoBehaviour
         slotText[3].text = "Add +1 to 2 dice faces"; 
         slotText[4].text = "Add +2 to 1 dice face";
         slotText[5].text = "Copy a dice face onto another dice face";
+
+        foreach(GameObject button in statWindowController.abilityButtons)
+        {
+            button.GetComponent<Button>().interactable = false;
+        }
     }
 
     public void SetupCurses()
     {
+        spinButton.gameObject.SetActive(true);
+        spinning = false;
+
         roomType = "curse";
+
+        titleText.text = "Cursed!";
 
         slotText[0].text = "Never punished (no effect)";
         slotText[1].text = "Take 3 DMG";
@@ -279,25 +320,60 @@ public class RouletteWheel : MonoBehaviour
         slotText[3].text = "Lowers max rerolls by 1";
         slotText[4].text = "Subtract [1] to 1 die face";
         slotText[5].text = "Subtract [2] to 1 die face";
+
+        foreach (GameObject button in statWindowController.abilityButtons)
+        {
+            button.GetComponent<Button>().interactable = false;
+        }
     }
 
     public void SetupPlayerAttacks()
     {
+        spinButton.gameObject.SetActive(true);
+        spinning = false;
+
         roomType = "player";
 
+        titleText.text = "Player Abilities";
 
+        slotText[0].text = playerController.abilityTexts[0].text;
+        slotText[1].text = playerController.abilityTexts[1].text;
+        slotText[2].text = playerController.abilityTexts[2].text;
+        slotText[3].text = playerController.abilityTexts[3].text;
+        slotText[4].text = playerController.abilityTexts[4].text;
+        slotText[5].text = playerController.abilityTexts[5].text;
     }
 
     public void SetupEnemyAttacks()
     {
+        spinButton.gameObject.SetActive(false);
+        spinning = false;
+
         roomType = "enemy";
 
+        titleText.text = "Enemy Attack!";
 
+        slotText[0].text = dungeonController.enemy.GetComponent<Enemy>().abilities[0];
+        slotText[1].text = dungeonController.enemy.GetComponent<Enemy>().abilities[1];
+        slotText[2].text = dungeonController.enemy.GetComponent<Enemy>().abilities[2];
+        slotText[3].text = dungeonController.enemy.GetComponent<Enemy>().abilities[3];
+        slotText[4].text = dungeonController.enemy.GetComponent<Enemy>().abilities[4];
+        slotText[5].text = dungeonController.enemy.GetComponent<Enemy>().abilities[5];
     }
 
     public void Spin()
     {
         spinning = true;
         spinButton.interactable = false;
+
+        spinTimer = spinDuration;
+        spinRate = Random.Range(0.01f, 0.03f);
+        spinDuration = Random.Range(2.5f, 3.5f);
+        slotIndex = Random.Range(0, 6);
+    }
+
+    public void SetPlayer(GameObject player)
+    {
+        playerController = player.GetComponent<PlayerController>();
     }
 }

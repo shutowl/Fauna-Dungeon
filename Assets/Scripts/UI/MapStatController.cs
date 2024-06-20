@@ -93,6 +93,11 @@ public class MapStatController : MonoBehaviour
         {
             CloseStats();
             FindAnyObjectByType<DungeonController>().SetNextRoomTimer(1f);
+
+            foreach (GameObject button in abilityButtons)
+            {
+                button.GetComponent<Button>().interactable = false;
+            }
         }
     }
 }

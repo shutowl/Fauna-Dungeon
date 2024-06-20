@@ -6,6 +6,10 @@ TagManager:
   tags:
   - DungeonController
   - Item
+  - RouletteWheel
+  - MapStat
+  - BattleController
+  - Enemy
   layers:
   - Default
   - TransparentFX

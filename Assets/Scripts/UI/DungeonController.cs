@@ -75,9 +75,14 @@ public class DungeonController : MonoBehaviour
 
     [Header("Roulette")]
     public GameObject rouletteWindow;
+    RouletteWheel rouletteWheel;
 
     [Header("Player")]
     string playerClass;
+
+    [Header("Enemy")]
+    public GameObject enemy;
+    public BattleController battleController;
 
     void Start()
     {
@@ -106,6 +111,9 @@ public class DungeonController : MonoBehaviour
         inventoryFilled[5] = false;
 
         itemDescWindow.SetActive(false);
+
+        battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
+        rouletteWheel = GameObject.FindGameObjectWithTag("RouletteWheel").GetComponent<RouletteWheel>();
     }
 
     private void Update()
@@ -255,10 +263,38 @@ public class DungeonController : MonoBehaviour
             //Guaranteed enemy room
             else if(currentFloor == 2)
             {
+                roomButtons[5].GetComponent<Button>().interactable = true;
+                roomButtons[5].GetComponent<JumpyButtons>().enabled = true;
+
                 if (EventSystem.current.currentSelectedGameObject == roomButtons[5])
                 {
                     MoveToRoom(5);
+                    currentState = DungeonState.room;
+                    currentRoom = RoomType.enemy;
+
+                    roomButtons[5].GetComponent<Button>().interactable = false;
+                    roomButtons[5].GetComponent<JumpyButtons>().enabled = false;
                 }
+            }
+            //Same as floor 1
+            else if(currentFloor == 3)
+            {
+
+            }
+            //Same as floor 2
+            else if (currentFloor == 4)
+            {
+
+            }
+            //Same as floor 1
+            else if (currentFloor == 5)
+            {
+
+            }
+            //Boss Room
+            else if (currentFloor == 6)
+            {
+
             }
         }
         //-----------ROOMS---------------
@@ -278,7 +314,7 @@ public class DungeonController : MonoBehaviour
 
                     inventoryWindow.GetComponent<InventoryController>().Enabled(false);
 
-                    roomTimer = 1f;
+                    roomTimer = 0f;
                     roomStep = 1;
                 }
                 else if(roomStep == 1)
@@ -292,6 +328,8 @@ public class DungeonController : MonoBehaviour
 
                     if(roomTimer <= 0)
                     {
+                        StartCoroutine(LockCursor(5f));
+
                         //Close curtain
                         MoveCurtain(false, 1f);
                         //Move room back
@@ -303,6 +341,7 @@ public class DungeonController : MonoBehaviour
                         //Move Map and Player down a bit
                         mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        MovePickRoomText(true, 5f);
 
                         inventoryWindow.GetComponent<InventoryController>().Enabled(true);
 
@@ -337,6 +376,8 @@ public class DungeonController : MonoBehaviour
 
                     if (roomTimer <= 0)
                     {
+                        StartCoroutine(LockCursor(5f));
+
                         //Close curtain
                         MoveCurtain(false, 1f);
                         //Move room back
@@ -348,6 +389,7 @@ public class DungeonController : MonoBehaviour
                         //Move Map and Player down a bit
                         mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        MovePickRoomText(true, 5f);
 
                         currentFloor++;
                         currentState = DungeonState.map;
@@ -380,6 +422,8 @@ public class DungeonController : MonoBehaviour
 
                     if (roomTimer <= 0)
                     {
+                        StartCoroutine(LockCursor(5f));
+
                         //Close curtain
                         MoveCurtain(false, 1f);
                         //Move room back
@@ -391,6 +435,7 @@ public class DungeonController : MonoBehaviour
                         //Move Map and Player down a bit
                         mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        MovePickRoomText(true, 5f);
 
                         currentFloor++;
                         currentState = DungeonState.map;
@@ -400,7 +445,52 @@ public class DungeonController : MonoBehaviour
             //---------ENEMY ROOM---------------
             else if (currentRoom == RoomType.enemy)
             {
+                if (roomStep == 0)
+                {
+                    GameObject enemyChosen = enemies[Random.Range(0, enemies.Length)];
+                    //Place Enemy
+                    SpawnEnemy(enemyChosen); //Randomize between enemies [make pool if time permits]
+                    //Open curtain
+                    MoveCurtain(true, 2.5f);
+                    //Move Player
+                    playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
+                    //Move UI
+                    battleController.MoveUI(true, 4f);
+                    battleController.GetEnemy(this.enemy);
 
+                    roomTimer = 1f;
+                    roomStep = 1;
+                }
+                else if (roomStep == 1)
+                {
+                    //Room Logic
+                    //Incremented by 
+                }
+                else if (roomStep == 2)
+                {
+                    roomTimer -= Time.deltaTime;
+
+                    if (roomTimer <= 0)
+                    {
+                        StartCoroutine(LockCursor(5f));
+
+                        //Close curtain
+                        MoveCurtain(false, 1f);
+                        //Move room back
+                        roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
+                        //Move player back
+                        playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
+                        //Open curtain
+                        MoveCurtain(true, 2.3f);
+                        //Move Map and Player down a bit
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        MovePickRoomText(true, 5f);
+
+                        currentFloor++;
+                        currentState = DungeonState.map;
+                    }
+                }
             }
         }
     }
@@ -430,6 +520,11 @@ public class DungeonController : MonoBehaviour
 
         //Setup Player statistics
         player.GetComponent<PlayerController>().SetupClass(playerClass);
+        rouletteWheel.SetPlayer(player);
+        battleController.SetPlayer(player);
+
+
+        StartCoroutine(LockCursor(2f));
 
         currentState = DungeonState.map;
     }
@@ -482,15 +577,23 @@ public class DungeonController : MonoBehaviour
         newStatue.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, newStatue.GetComponent<RectTransform>().anchoredPosition.y);
     }
 
+    void SpawnEnemy(GameObject enemy)
+    {
+        GameObject enemyObject = enemy;
+
+        this.enemy = enemyObject = Instantiate(enemyObject, enemyRoomPosition);
+        this.enemy.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, enemyObject.GetComponent<RectTransform>().anchoredPosition.y);
+    }
+
     void MovePickRoomText(bool onscreen, float delay)
     {
         if (onscreen)
         {
-            pickRoomText.GetComponent<RectTransform>().DOAnchorPosY(-Mathf.Abs(pickRoomText.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+            pickRoomText.GetComponent<RectTransform>().DOAnchorPosY(-128, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
         }
         else
         {
-            pickRoomText.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(pickRoomText.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+            pickRoomText.GetComponent<RectTransform>().DOAnchorPosY(128, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
 
         }
     }
@@ -640,19 +743,19 @@ public class DungeonController : MonoBehaviour
 
         if (type.Equals("blessing"))
         {
-            FindObjectOfType<RouletteWheel>().SetupBlessings();
+            rouletteWheel.SetupBlessings();
         }
         if (type.Equals("curse"))
         {
-            FindObjectOfType<RouletteWheel>().SetupCurses();
+            rouletteWheel.SetupCurses();
         }
         if (type.Equals("player"))
         {
-
+            //Done in BattleController instead
         }
         if (type.Equals("enemy"))
         {
-
+            //Done in BattleController instead
         }
     }
 
@@ -661,5 +764,12 @@ public class DungeonController : MonoBehaviour
         roomStep++;
         roomTimer = time;
         rouletteWindow.GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
+    }
+
+    IEnumerator LockCursor(float sec)
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        yield return new WaitForSeconds(sec);
+        Cursor.lockState = CursorLockMode.None;
     }
 }

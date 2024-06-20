@@ -21,12 +21,30 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI[] abilityTexts;
     private int[] abilityValues;
     private bool[] upgradable;
+    bool[] offensive;
+    float[] abilityLength;
+
+    DungeonController dungeonController;
+    BattleController battleController;
 
     private void Start()
     {
         abilityTexts = new TextMeshProUGUI[6];
         abilityValues = new int[6];
         upgradable = new bool[6];
+        offensive = new bool[6];
+        abilityLength = new float[6];
+
+        dungeonController = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>();
+        battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            GetComponent<RectTransform>().DOShakeAnchorPos(0.5f, 30, 20, 45).SetDelay(0);
+        }
     }
 
     public void SetupClass(string newClass)
@@ -45,26 +63,32 @@ public class PlayerController : MonoBehaviour
             abilityValues[0] = 0;
             abilityTexts[0].text = "Nothing";
             upgradable[0] = false;
+            offensive[0] = false;
 
             abilityValues[1] = 3;
             abilityTexts[1].text = "Heal yourself for [" + abilityValues[1] + "] HP";
             upgradable[1] = true;
+            offensive[1] = false;
 
             abilityValues[2] = 2;
             abilityTexts[2].text = "Vine Attack (Deal [" + abilityValues[2] + "] DMG)";
             upgradable[2] = true;
+            offensive[2] = true;
 
             abilityValues[3] = 1;
             abilityTexts[3].text = "Summon ATK Sapling (Deal [" + abilityValues[3] + "] DMG each turn for 3 turns";
             upgradable[3] = true;
+            offensive[3] = false;
 
             abilityValues[4] = 1;
             abilityTexts[4].text = "Summon DEF Sapling(Grants +[" + abilityValues[4] + "] DEF for 3 turns)";
             upgradable[4] = true;
+            offensive[4] = false;
 
             abilityValues[5] = 0;
             abilityTexts[5].text = "Ara ara(Saplings powers are x2 as effective for 4 turns)";
             upgradable[5] = false;
+            offensive[5] = false;
 
             maxHP = currentHP = 10;
             DEF = 0;
@@ -77,31 +101,46 @@ public class PlayerController : MonoBehaviour
             abilityValues[0] = 0;
             abilityTexts[0].text = "Nothing";
             upgradable[0] = false;
+            offensive[0] = false;
 
             abilityValues[1] = 3;
             abilityTexts[1].text = "Meditate (Heal yourself for [" + abilityValues[1] + "] HP)";
             upgradable[1] = true;
+            offensive[1] = false;
 
             abilityValues[2] = 2;
             abilityTexts[2].text = "Block (+[" + abilityValues[2] + "] DEF)";
             upgradable[2] = true;
+            offensive[2] = false;
 
             abilityValues[3] = 1;
             abilityTexts[3].text = "Counter (+[" + abilityValues[3] + "] DEF, Deal [" + abilityValues[3] + "] DMG on hit, lasts 2 turns)";
             upgradable[3] = true;
+            offensive[3] = false;
 
-            abilityValues[4] = 1;
+            abilityValues[4] = 2;
             abilityTexts[4].text = "Slap (Deal [" + abilityValues[4] + "]  DMG)";
             upgradable[4] = true;
+            offensive[4] = true;
 
             abilityValues[5] = 2;
             abilityTexts[5].text = "Double Slap (Deal [" + abilityValues[5] + "] DMG twice)";
             upgradable[5] = true;
+            offensive[5] = true;
 
             maxHP = currentHP = 15;
             DEF = 0;
             maxRerolls = currentRerolls = 2;
         }
+
+        //Offensive = 2s length
+        //Defensive = 1s length
+        for (int i = 0; i < offensive.Length; i++)
+        {
+            if (offensive[i]) abilityLength[i] = 2f;
+            else abilityLength[i] = 1f;
+        }
+
         Debug.Log(abilityValues[0] + " " + abilityValues[1] + " " + abilityValues[2] + " " + abilityValues[3] + " " + abilityValues[4] + " " + abilityValues[5]);
     }
 
@@ -172,16 +211,18 @@ public class PlayerController : MonoBehaviour
         slotText[4].text = "Subtract [1] to 1 die face";
         slotText[5].text = "Subtract [2] to 1 die face";*/
 
-    public void Damage(int value)
+    public void Damage(int value, float delay)
     {
-        currentHP = Mathf.Clamp(currentHP - value, 0, maxHP);
+        StartCoroutine(DelayedDamage(value, delay));
 
-        if(currentHP == 0)
-        {
-            //game over
+        //Animations
+        //Player flash red
 
-            //play broom sweeping animation
-        }
+        //Player sprite change
+
+        //Shake
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOShakeAnchorPos(0.5f, 30, 20, 45).SetDelay(delay);
     }
 
     public void Heal(int value)
@@ -201,6 +242,59 @@ public class PlayerController : MonoBehaviour
         currentRerolls = maxRerolls;
     }
 
+    public bool IsOffensive(int abilityNum)
+    {
+        return offensive[abilityNum];
+    }
+
+    public int GetCurrentHP() { return currentHP; }
+    public int GetMaxHP() { return maxHP; }
+    public int GetCurrentRerolls(){ return currentRerolls; }
+    public int GetMaxRerolls() { return maxRerolls; }
+
+    //Ability that doesn't do direct damage this turn
+    public float PlayDefensiveAbility(int abilityNum, float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        return abilityLength[abilityNum] + delay;
+    }
+
+    //Ability that directly damages enemy
+    public float PlayOffensiveAbility(int abilityNum, float delay)
+    {
+        RectTransform rect = GetComponent<RectTransform>();
+        Vector2 originalPos = rect.anchoredPosition;
+
+        //Wind up attack towards enemy
+        rect.DOAnchorPosX(rect.anchoredPosition.x - 30f, 0.5f).SetEase(Ease.OutCubic).SetDelay(delay);
+        rect.DOAnchorPosX(rect.anchoredPosition.x + 60f, 0.25f).SetEase(Ease.InCubic).SetDelay(0.5f + delay);
+        rect.DOAnchorPosX(originalPos.x, 1f).SetEase(Ease.OutCubic).SetDelay(1f + delay);
+
+        //Damage Enemy
+        GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
+        enemy.GetComponent<Enemy>().Damage(abilityValues[abilityNum], 0.75f + delay);
+
+        return abilityLength[abilityNum] + delay;
+    }
 
     //During battle, check for items and give buffs based on passives.
+
+    IEnumerator DelayedDamage(int value, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
+
+
+        if (currentHP == 0)
+        {
+            //game over
+
+            //play broom sweeping animation
+        }
+
+        battleController.UpdateUIText();
+    }
 }

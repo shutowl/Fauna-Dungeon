@@ -11,11 +11,14 @@ public class JumpyButtons : MonoBehaviour
 
     public void Jump()
     {
-        if(timer < 0)
+        if (!DOTween.IsTweening(GetComponent<RectTransform>()))
         {
-            RectTransform rect = GetComponent<RectTransform>();
-            rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), strength, 1, duration);
-            timer = duration;
+            if (timer < 0)
+            {
+                RectTransform rect = GetComponent<RectTransform>();
+                rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), strength, 1, duration);
+                timer = duration;
+            }
         }
     }
 
