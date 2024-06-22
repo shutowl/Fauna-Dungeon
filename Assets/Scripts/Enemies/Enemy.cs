@@ -18,12 +18,14 @@ public class Enemy : MonoBehaviour
     public bool[] offensive;
 
     DungeonController dungeonController;
+    protected BattleController battleController;
 
     Image sprite;
 
     protected virtual void Start()
     {
         //dungeonController = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>();
+        battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
     }
 
     public void Damage(int value, float delay)
@@ -75,10 +77,18 @@ public class Enemy : MonoBehaviour
 
         if (HP <= 0)
         {
-            //Die after a delay
+            battleController.EnemyDefeated();
+            Die();
             //Drop item if regular enemy
         }
 
         Debug.Log("Enemy took " + value + " damage");
+    }
+
+    //Gets spun and flung off
+    void Die()
+    {
+        GetComponent<RectTransform>().DOJumpAnchorPos(new Vector2(GetComponent<RectTransform>().anchoredPosition.x + 200f, GetComponent<RectTransform>().anchoredPosition.y - 2000f), 900f, 1, 3f).SetEase(Ease.OutCubic);
+        GetComponent<RectTransform>().DORotate(new Vector3(0, 0, 3000), 3f, RotateMode.FastBeyond360).SetEase(Ease.OutCubic);
     }
 }

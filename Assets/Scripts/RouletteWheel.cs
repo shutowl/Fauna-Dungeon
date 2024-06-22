@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class RouletteWheel : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class RouletteWheel : MonoBehaviour
     public GameObject[] slotWindow;
     public TextMeshProUGUI[] slotText;
     public Button spinButton;
+    public Button rerollButton;
+    public Button continueButton;
     public Color unselectedColor;
     public Color selectdColor;
     private float spinRate = 0.03f;         //The rate at which slots are selected. Gets slower over time till it stops completely
@@ -38,6 +41,9 @@ public class RouletteWheel : MonoBehaviour
         statWindowController = GameObject.FindGameObjectWithTag("MapStat").GetComponent<MapStatController>();
         dungeonController = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>();
         battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
+
+        rerollButton.gameObject.SetActive(false);
+        continueButton.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -68,7 +74,7 @@ public class RouletteWheel : MonoBehaviour
 
                 spinning = false;
 
-                Debug.Log("Landed on " + slotIndex);
+                //Debug.Log("Landed on " + slotIndex);
                 switch (roomType)
                 {
                     case "blessing":
@@ -148,19 +154,13 @@ public class RouletteWheel : MonoBehaviour
                                     statWindowController.abilityButtons[5].GetComponent<Button>().interactable = true;
                                 }
                                 break;
-                            case 5: //copy dice
-                                //Open stat window
-                                statWindowController.OpenStats(true);
-                                //Make all abilities clickable
-                                /*
-                                statWindowController.abilityButtons[0].GetComponent<Button>().interactable = true;
-                                statWindowController.abilityButtons[1].GetComponent<Button>().interactable = true;
-                                statWindowController.abilityButtons[2].GetComponent<Button>().interactable = true;
-                                statWindowController.abilityButtons[3].GetComponent<Button>().interactable = true;
-                                statWindowController.abilityButtons[4].GetComponent<Button>().interactable = true;
-                                statWindowController.abilityButtons[5].GetComponent<Button>().interactable = true;
-                                */
+                            case 5: //copy dice (Heal until it gets updated)
+                                slotWindow[slotIndex].GetComponent<Image>().color = unselectedColor;
+                                slotIndex = 0;
+                                slotWindow[slotIndex].GetComponent<Image>().color = selectdColor;
+                                playerController.Heal(5);
 
+                                dungeonController.SetNextRoomTimer(1f);
                                 break;
                         }
                         break;
@@ -244,30 +244,114 @@ public class RouletteWheel : MonoBehaviour
                         }
                         break;
                     case "player":
-                        if (!playerController.IsOffensive(slotIndex))
+                        if (playerController.GetCurrentRerolls() > 0 && spinTimer > -10)
                         {
-                            battleController.SetTimer(playerController.PlayDefensiveAbility(slotIndex, 2f));
+                            rerollButton.gameObject.SetActive(true);
+                            continueButton.gameObject.SetActive(true);
                         }
                         else
                         {
-                            battleController.SetTimer(playerController.PlayOffensiveAbility(slotIndex, 2f));
+                            switch (playerController.curClass)
+                            {
+                                case PlayerController.Class.druid:
+                                    switch (slotIndex)
+                                    {
+                                        case 0: //Nothing
+                                            playerController.Nothing(1f);
+                                            break;
+                                        case 1: //Heal
+                                            playerController.DruidHeal(1f);
+                                            break;
+                                        case 2: //Vine Attack
+                                            playerController.DruidVine(2f);
+                                            break;
+                                        case 3: //Summon ATK Sapling
+                                            playerController.SummonATKSapling(1f);
+                                            break;
+                                        case 4: //Fly
+                                            playerController.SummonDEFSapling(1f);
+                                            break;
+                                        case 5: //Enhance
+                                            playerController.EnhanceSaplings(1f);
+                                            break;
+                                    }
+                                    break;
+                                case PlayerController.Class.brawler:
+                                    switch (slotIndex)
+                                    {
+                                        case 0: //Nothing
+                                            playerController.Nothing(1f);
+                                            break;
+                                        case 1: //Heal
+                                            playerController.BrawlerHeal(1f);
+                                            break;
+                                        case 2: //Block
+                                            playerController.BrawlerBlock(1f);
+                                            break;
+                                        case 3: //Counter
+                                            playerController.BrawlerCounter(1f);
+                                            break;
+                                        case 4: //Slap
+                                            playerController.BrawlerSlap(2f);
+                                            break;
+                                        case 5: //Double Slap
+                                            playerController.BrawlerDoubleSlap(3f);
+                                            break;
+                                    }
+                                    break;
+                            }
+
+                            //Close roulette window
+                            GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
                         }
-                        //Close roulette window
-                        GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
 
                         break;
                     case "enemy":
-                        if (!dungeonController.enemy.GetComponent<Enemy>().IsOffensive(slotIndex))
+                        switch (dungeonController.enemy.GetComponent<Enemy>().enemyName)
                         {
-                            battleController.SetTimer(dungeonController.enemy.GetComponent<Enemy>().PlayDefensiveAbility(slotIndex, 2f));
-                        }
-                        else
-                        {
-                            battleController.SetTimer(dungeonController.enemy.GetComponent<Enemy>().PlayOffensiveAbility(slotIndex, 2f));
+                            case "Owl with a Knife":
+                                switch (slotIndex)
+                                {
+                                    case 0: //Nothing
+                                        dungeonController.enemy.GetComponent<KnifeOwl>().Nothing(1f);
+                                        break;
+                                    case 1: //Peck
+                                    case 2:
+                                        dungeonController.enemy.GetComponent<KnifeOwl>().Peck(1, 2f);
+                                        break;
+                                    case 3: //Slash
+                                        dungeonController.enemy.GetComponent<KnifeOwl>().Slash(2, 2f);
+                                        break;
+                                    case 4: //Fly
+                                        dungeonController.enemy.GetComponent<KnifeOwl>().Fly(1f);
+                                        break;
+                                    case 5: //Jumpscare
+                                        dungeonController.enemy.GetComponent<KnifeOwl>().Jumpscare(3, 2f);
+                                        break;
+                                }
+                                break;
+                            case "Moai Statue":
+                                switch (slotIndex)
+                                {
+                                    case 0: //
+                                        break;
+                                    case 1: //
+                                        break;
+                                    case 2: //
+                                        break;
+                                    case 3: //
+                                        break;
+                                    case 4: //
+                                        break;
+                                    case 5: //
+                                        break;
+                                }
+                                break;
                         }
 
                         //Close roulette window
                         GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
+
                         break;
                 }
             }
@@ -297,7 +381,7 @@ public class RouletteWheel : MonoBehaviour
         slotText[2].text = "Raise max rerolls by 1";
         slotText[3].text = "Add +1 to 2 dice faces"; 
         slotText[4].text = "Add +2 to 1 dice face";
-        slotText[5].text = "Copy a dice face onto another dice face";
+        slotText[5].text = "Copy a dice face onto another dice face (Sorry this doesn't work yet D:)";
 
         foreach(GameObject button in statWindowController.abilityButtons)
         {
@@ -366,10 +450,34 @@ public class RouletteWheel : MonoBehaviour
         spinning = true;
         spinButton.interactable = false;
 
-        spinTimer = spinDuration;
-        spinRate = Random.Range(0.01f, 0.03f);
+        spinRate = Random.Range(0.005f, 0.03f);
         spinDuration = Random.Range(2.5f, 3.5f);
         slotIndex = Random.Range(0, 6);
+        spinTimer = spinDuration;
+
+        rerollButton.gameObject.SetActive(false);
+        continueButton.gameObject.SetActive(false);
+
+        //Debug.Log("Rate: " + spinRate + ". Duration: " + spinDuration);
+    }
+
+    public void Reroll()
+    {
+        rerollButton.gameObject.SetActive(false);
+        Debug.Log(playerController.GetCurrentRerolls());
+        playerController.IncreaseCurrentRerolls(-1);
+        battleController.UpdateUIText();
+        Spin();
+
+        Debug.Log(playerController.GetCurrentRerolls());
+    }
+
+    public void Continue()
+    {
+        rerollButton.gameObject.SetActive(false);
+        continueButton.gameObject.SetActive(false);
+        spinning = true;
+        spinTimer = -50;
     }
 
     public void SetPlayer(GameObject player)

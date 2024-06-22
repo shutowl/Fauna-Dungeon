@@ -45,6 +45,11 @@ public class PlayerController : MonoBehaviour
         {
             GetComponent<RectTransform>().DOShakeAnchorPos(0.5f, 30, 20, 45).SetDelay(0);
         }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            GetComponent<RectTransform>().DOJumpAnchorPos(new Vector2(GetComponent<RectTransform>().anchoredPosition.x + 200f, GetComponent<RectTransform>().anchoredPosition.y - 2000f), 600f, 1, 3f).SetEase(Ease.OutCubic);
+            GetComponent<RectTransform>().DORotate(new Vector3(0, 0, 3000), 3f, RotateMode.FastBeyond360).SetEase(Ease.OutCubic);
+        }
     }
 
     public void SetupClass(string newClass)
@@ -251,6 +256,186 @@ public class PlayerController : MonoBehaviour
     public int GetMaxHP() { return maxHP; }
     public int GetCurrentRerolls(){ return currentRerolls; }
     public int GetMaxRerolls() { return maxRerolls; }
+    public void IncreaseCurrentRerolls(int value) { currentRerolls += value; }
+
+    //During battle, check for items and give buffs based on passives.
+
+    IEnumerator DelayedDamage(int value, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
+
+
+        if (currentHP == 0)
+        {
+            //game over
+
+            //play broom sweeping animation
+        }
+
+        battleController.UpdateUIText();
+    }
+
+    //------ABILITIES---------
+
+    //GLOBAL
+    //Nothing
+    public void Nothing(float delay)
+    {
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player does nothing");
+    }
+
+    //DRUID
+
+    //Heal
+    public void DruidHeal(float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player heals");
+    }
+
+    //Vine Attack
+    public void DruidVine(float delay)
+    {
+        RectTransform rect = GetComponent<RectTransform>();
+        Vector2 originalPos = rect.anchoredPosition;
+
+        //Wind up attack towards enemy
+        rect.DOAnchorPosX(rect.anchoredPosition.x - 30f, 0.5f).SetEase(Ease.OutCubic).SetDelay(delay);
+        rect.DOAnchorPosX(rect.anchoredPosition.x + 60f, 0.25f).SetEase(Ease.InCubic).SetDelay(0.5f + delay);
+        rect.DOAnchorPosX(originalPos.x, 1f).SetEase(Ease.OutCubic).SetDelay(1f + delay);
+
+        //Damage Enemy
+        GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
+        enemy.GetComponent<Enemy>().Damage(abilityValues[4], 0.75f + delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player vine");
+    }
+
+    //Summon Attack Sapling
+    public void SummonATKSapling(float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player ATK Sapling");
+    }
+
+    //Summon DEF Sapling
+    public void SummonDEFSapling(float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player DEF Sapling");
+    }
+
+    //Enhance buff
+    public void EnhanceSaplings(float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player Enhance Saplings");
+    }
+
+
+    //Brawler
+
+    //Meditate
+    public void BrawlerHeal(float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player Brawl heal");
+    }
+
+    //Block
+    public void BrawlerBlock(float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player Block");
+    }
+
+    //Counter
+    public void BrawlerCounter(float delay)
+    {
+        //Small Jump
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        battleController.SetTimer(delay);
+        Debug.Log("Player Counter");
+    }
+
+    //Slap
+    public void BrawlerSlap(float delay)
+    {
+        RectTransform rect = GetComponent<RectTransform>();
+        Vector2 originalPos = rect.anchoredPosition;
+
+        //Wind up attack towards enemy
+        rect.DOAnchorPosX(rect.anchoredPosition.x - 30f, 0.5f).SetEase(Ease.OutCubic).SetDelay(delay);
+        rect.DOAnchorPosX(rect.anchoredPosition.x + 60f, 0.25f).SetEase(Ease.InCubic).SetDelay(0.5f + delay);
+        rect.DOAnchorPosX(originalPos.x, 1f).SetEase(Ease.OutCubic).SetDelay(1f + delay);
+
+        //Damage Enemy
+        GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
+        enemy.GetComponent<Enemy>().Damage(abilityValues[4], 0.75f + delay);
+
+        battleController.SetTimer(delay + 1f);
+        Debug.Log("Player Slap");
+    }
+
+    //Double Slap
+    public void BrawlerDoubleSlap(float delay)
+    {
+        RectTransform rect = GetComponent<RectTransform>();
+        Vector2 originalPos = rect.anchoredPosition;
+
+        //Wind up attack towards enemy
+        rect.DOAnchorPosX(rect.anchoredPosition.x - 30f, 0.5f).SetEase(Ease.OutCubic).SetDelay(delay);
+        rect.DOAnchorPosX(rect.anchoredPosition.x + 60f, 0.25f).SetEase(Ease.InCubic).SetDelay(0.5f + delay);
+        rect.DOAnchorPosX(originalPos.x, 1f).SetEase(Ease.OutCubic).SetDelay(0.75f + delay);
+
+        //Damage Enemy
+        GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
+        enemy.GetComponent<Enemy>().Damage(abilityValues[5], 0.75f + delay);
+
+        //Wind up attack towards enemy again
+        rect.DOAnchorPosX(rect.anchoredPosition.x - 30f, 0.5f).SetEase(Ease.OutCubic).SetDelay(1.5f + delay);
+        rect.DOAnchorPosX(rect.anchoredPosition.x + 60f, 0.25f).SetEase(Ease.InCubic).SetDelay(1.5f + 0.5f + delay);
+        rect.DOAnchorPosX(originalPos.x, 1f).SetEase(Ease.OutCubic).SetDelay(1.5f + 0.75f + delay);
+
+        //Damage Enemy
+        enemy.GetComponent<Enemy>().Damage(abilityValues[5], 1.5f + 0.75f + delay);
+
+        battleController.SetTimer(delay + 1f);
+        Debug.Log("Player x2 Slap");
+    }
+
+
+
 
     //Ability that doesn't do direct damage this turn
     public float PlayDefensiveAbility(int abilityNum, float delay)
@@ -280,21 +465,8 @@ public class PlayerController : MonoBehaviour
         return abilityLength[abilityNum] + delay;
     }
 
-    //During battle, check for items and give buffs based on passives.
-
-    IEnumerator DelayedDamage(int value, float delay)
+    public int GetAbilityValue(int abilityNum)
     {
-        yield return new WaitForSeconds(delay);
-        currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
-
-
-        if (currentHP == 0)
-        {
-            //game over
-
-            //play broom sweeping animation
-        }
-
-        battleController.UpdateUIText();
+        return abilityValues[abilityNum];
     }
 }

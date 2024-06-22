@@ -279,12 +279,91 @@ public class DungeonController : MonoBehaviour
             //Same as floor 1
             else if(currentFloor == 3)
             {
+                roomButtons[6].GetComponent<Button>().interactable = true;
+                roomButtons[7].GetComponent<Button>().interactable = true;
+                roomButtons[8].GetComponent<Button>().interactable = true;
+                roomButtons[9].GetComponent<Button>().interactable = true;
+                roomButtons[6].GetComponent<JumpyButtons>().enabled = true;
+                roomButtons[7].GetComponent<JumpyButtons>().enabled = true;
+                roomButtons[8].GetComponent<JumpyButtons>().enabled = true;
+                roomButtons[9].GetComponent<JumpyButtons>().enabled = true;
 
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[6])
+                {
+                    MoveToRoom(6);
+                    currentState = DungeonState.room;
+                    currentRoom = RandomRoom();
+
+                    roomButtons[6].GetComponent<Button>().interactable = false;
+                    roomButtons[7].GetComponent<Button>().interactable = false;
+                    roomButtons[8].GetComponent<Button>().interactable = false;
+                    roomButtons[9].GetComponent<Button>().interactable = false;
+                    roomButtons[6].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[7].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[8].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[9].GetComponent<JumpyButtons>().enabled = false;
+                }
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[7])
+                {
+                    MoveToRoom(7);
+                    currentState = DungeonState.room;
+                    currentRoom = RandomRoom();
+
+                    roomButtons[6].GetComponent<Button>().interactable = false;
+                    roomButtons[7].GetComponent<Button>().interactable = false;
+                    roomButtons[8].GetComponent<Button>().interactable = false;
+                    roomButtons[9].GetComponent<Button>().interactable = false;
+                    roomButtons[6].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[7].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[8].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[9].GetComponent<JumpyButtons>().enabled = false;
+                }
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[8])
+                {
+                    MoveToRoom(8);
+                    currentState = DungeonState.room;
+                    currentRoom = RandomRoom();
+
+                    roomButtons[6].GetComponent<Button>().interactable = false;
+                    roomButtons[7].GetComponent<Button>().interactable = false;
+                    roomButtons[8].GetComponent<Button>().interactable = false;
+                    roomButtons[9].GetComponent<Button>().interactable = false;
+                    roomButtons[6].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[7].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[8].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[9].GetComponent<JumpyButtons>().enabled = false;
+                }
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[9])
+                {
+                    MoveToRoom(9);
+                    currentState = DungeonState.room;
+                    currentRoom = RandomRoom();
+
+                    roomButtons[6].GetComponent<Button>().interactable = false;
+                    roomButtons[7].GetComponent<Button>().interactable = false;
+                    roomButtons[8].GetComponent<Button>().interactable = false;
+                    roomButtons[9].GetComponent<Button>().interactable = false;
+                    roomButtons[6].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[7].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[8].GetComponent<JumpyButtons>().enabled = false;
+                    roomButtons[9].GetComponent<JumpyButtons>().enabled = false;
+                }
             }
             //Same as floor 2
             else if (currentFloor == 4)
             {
+                roomButtons[10].GetComponent<Button>().interactable = true;
+                roomButtons[10].GetComponent<JumpyButtons>().enabled = true;
 
+                if (EventSystem.current.currentSelectedGameObject == roomButtons[10])
+                {
+                    MoveToRoom(10);
+                    currentState = DungeonState.room;
+                    currentRoom = RoomType.enemy;
+
+                    roomButtons[10].GetComponent<Button>().interactable = false;
+                    roomButtons[10].GetComponent<JumpyButtons>().enabled = false;
+                }
             }
             //Same as floor 1
             else if (currentFloor == 5)
@@ -668,6 +747,26 @@ public class DungeonController : MonoBehaviour
             x.GetComponent<Button>().interactable = true;
         }
     }
+    //enemy variant
+    public void MoveItemWindow(float delay, bool chest, GameObject item)
+    {
+        itemSlots[0].SetActive(false);
+        itemSlots[1].SetActive(true);
+        itemSlots[2].SetActive(false);
+
+        //Randomize only middle item
+        int rng = Random.Range(0, itemPool.Count);
+        ChangeItem(1, item);
+
+        itemWindow.GetComponent<RectTransform>().DOAnchorPosY(-Mathf.Abs(itemWindow.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+
+        GameObject[] allItems = GameObject.FindGameObjectsWithTag("Item");
+        foreach (GameObject x in allItems)
+        {
+            x.GetComponent<Button>().interactable = true;
+        }
+    }
+
 
     public void CloseItemWindow(float delay)
     {
@@ -771,5 +870,23 @@ public class DungeonController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         yield return new WaitForSeconds(sec);
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    RoomType RandomRoom()
+    {
+        int rng = Random.Range(0, 3);
+
+        if(rng == 0)
+        {
+            return RoomType.item;
+        }
+        else if(rng == 1)
+        {
+            return RoomType.blessing;
+        }
+        else
+        {
+            return RoomType.curse;
+        }
     }
 }

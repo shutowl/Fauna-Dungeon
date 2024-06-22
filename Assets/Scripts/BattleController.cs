@@ -15,6 +15,7 @@ public class BattleController : MonoBehaviour
         inventory,
         running,
         enemy,
+        item
     }
     public State currentState;
     public TextMeshProUGUI curHPText;
@@ -150,6 +151,18 @@ public class BattleController : MonoBehaviour
                 }
             }
         }
+        if(currentState == State.item)
+        {
+            if(battleStep == 0)
+            {
+                dungeonController.MoveItemWindow(1f, false, enemyController.itemDropped);
+                battleStep = 1;
+            }
+            if(battleStep == 1)
+            {
+
+            }
+        }
     }
 
     //Moves once when fight begins and ends
@@ -223,6 +236,12 @@ public class BattleController : MonoBehaviour
 
     }
 
+    public void EnemyDefeated()
+    {
+        battleStep = 0;
+        currentState = State.item;
+    }
+
     public void ChangeBattleState(string state)
     {
         if (state.Equals("idle"))
@@ -263,8 +282,8 @@ public class BattleController : MonoBehaviour
         //Reupdate HP Text
         curHPText.text = "" + playerController.GetCurrentHP();
         maxHPText.text = "/" + playerController.GetMaxHP();
-        //Refresh rerolls
-        playerController.IncreaseMaxRerolls(0);
+
+        //Reupdate rerolls
         curRerollText.text = "" + playerController.GetCurrentRerolls();
         maxRerollText.text = "/" + playerController.GetMaxRerolls();
     }
