@@ -295,7 +295,7 @@ public class RouletteWheel : MonoBehaviour
                                             playerController.BrawlerSlap(2f);
                                             break;
                                         case 5: //Double Slap
-                                            playerController.BrawlerDoubleSlap(3f);
+                                            playerController.BrawlerDoubleSlap(2f);
                                             break;
                                     }
                                     break;
@@ -333,17 +333,23 @@ public class RouletteWheel : MonoBehaviour
                             case "Moai Statue":
                                 switch (slotIndex)
                                 {
-                                    case 0: //
+                                    case 0: //Nothing
+                                        dungeonController.enemy.GetComponent<MoaiStatue>().Nothing(1f);
                                         break;
-                                    case 1: //
+                                    case 1: //Harden
+                                        dungeonController.enemy.GetComponent<MoaiStatue>().Harden(1f);
                                         break;
-                                    case 2: //
+                                    case 2: //Harden
+                                        dungeonController.enemy.GetComponent<MoaiStatue>().Harden(1f);
                                         break;
-                                    case 3: //
+                                    case 3: //Throw Pebble
+                                        dungeonController.enemy.GetComponent<MoaiStatue>().ThrowPebble(1, 2f);
                                         break;
-                                    case 4: //
+                                    case 4: //Throw Pebble
+                                        dungeonController.enemy.GetComponent<MoaiStatue>().ThrowPebble(1, 2f);
                                         break;
-                                    case 5: //
+                                    case 5: //Rock Slide
+                                        dungeonController.enemy.GetComponent<MoaiStatue>().RockSlide(2, 2f);
                                         break;
                                 }
                                 break;

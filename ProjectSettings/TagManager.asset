@@ -10,6 +10,7 @@ TagManager:
   - MapStat
   - BattleController
   - Enemy
+  - GameOverController
   layers:
   - Default
   - TransparentFX

@@ -26,6 +26,17 @@ public class PlayerController : MonoBehaviour
 
     DungeonController dungeonController;
     BattleController battleController;
+    GameOver gameOverController;
+
+    [Header("Turn-based moves")]
+    public int ATKSaplingTurnsLeft;
+    public int DEFSaplingTurnsLeft;
+    public int enhanceTurnsLeft;
+    public int blockTurnsLeft;
+    public int counterTurnsLeft;
+    bool enhanceSaplingsOn;
+    bool ATKSaplingOn;
+    bool counterOn;
 
     private void Start()
     {
@@ -37,6 +48,16 @@ public class PlayerController : MonoBehaviour
 
         dungeonController = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>();
         battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
+        gameOverController = GameObject.FindGameObjectWithTag("GameOverController").GetComponent<GameOver>();
+
+        ATKSaplingTurnsLeft = 0;
+        DEFSaplingTurnsLeft = 0;
+        enhanceTurnsLeft = 0;
+        blockTurnsLeft = 0;
+        counterTurnsLeft = 0;
+        enhanceSaplingsOn = false;
+        ATKSaplingOn = false;
+        counterOn = false;
     }
 
     private void Update()
@@ -50,6 +71,8 @@ public class PlayerController : MonoBehaviour
             GetComponent<RectTransform>().DOJumpAnchorPos(new Vector2(GetComponent<RectTransform>().anchoredPosition.x + 200f, GetComponent<RectTransform>().anchoredPosition.y - 2000f), 600f, 1, 3f).SetEase(Ease.OutCubic);
             GetComponent<RectTransform>().DORotate(new Vector3(0, 0, 3000), 3f, RotateMode.FastBeyond360).SetEase(Ease.OutCubic);
         }
+
+
     }
 
     public void SetupClass(string newClass)
@@ -114,7 +137,7 @@ public class PlayerController : MonoBehaviour
             offensive[1] = false;
 
             abilityValues[2] = 2;
-            abilityTexts[2].text = "Block (+[" + abilityValues[2] + "] DEF)";
+            abilityTexts[2].text = "Block (+[" + abilityValues[2] + "] DEF for 1 turn)";
             upgradable[2] = true;
             offensive[2] = false;
 
@@ -146,7 +169,7 @@ public class PlayerController : MonoBehaviour
             else abilityLength[i] = 1f;
         }
 
-        Debug.Log(abilityValues[0] + " " + abilityValues[1] + " " + abilityValues[2] + " " + abilityValues[3] + " " + abilityValues[4] + " " + abilityValues[5]);
+        GameObject.Find("MapStatText").GetComponent<TextMeshProUGUI>().text = "Max HP: " + maxHP + "\nMax Rerolls: " + maxRerolls;
     }
 
     public void UpgradeAbility(int abilityNum, int addedValue)
@@ -182,7 +205,7 @@ public class PlayerController : MonoBehaviour
                     abilityTexts[1].text = "Meditate (Heal yourself for [" + totalValue + "] HP)";
                     break;
                 case 2:
-                    abilityTexts[2].text = "Block (+[" + totalValue + "] DEF)";
+                    abilityTexts[2].text = "Block (+[" + totalValue + "] DEF) for 1 turn";
                     break;
                 case 3:
                     abilityTexts[3].text = "Counter (+[" + totalValue + "] DEF, Deal [" + totalValue + "] DMG on hit, lasts 2 turns)";
@@ -233,6 +256,7 @@ public class PlayerController : MonoBehaviour
     public void Heal(int value)
     {
         currentHP = Mathf.Clamp(currentHP + value, 0, maxHP);
+        battleController.UpdateUIText();
     }
 
     public void IncreaseMaxHP(int value)
@@ -265,12 +289,18 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(delay);
         currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
 
+        //Brawler Counter
+        if (counterOn)
+        {
+            //Damage Enemy
+            GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
+            enemy.GetComponent<Enemy>().Damage(abilityValues[3], 0.25f);
+        }
 
         if (currentHP == 0)
         {
             //game over
-
-            //play broom sweeping animation
+            gameOverController.InitiateGameOver(dungeonController.playerPosition.gameObject);
         }
 
         battleController.UpdateUIText();
@@ -282,7 +312,6 @@ public class PlayerController : MonoBehaviour
     //Nothing
     public void Nothing(float delay)
     {
-
         battleController.SetTimer(delay);
         Debug.Log("Player does nothing");
     }
@@ -326,6 +355,8 @@ public class PlayerController : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
 
+        ATKSaplingTurnsLeft = 3;
+
         battleController.SetTimer(delay);
         Debug.Log("Player ATK Sapling");
     }
@@ -337,6 +368,16 @@ public class PlayerController : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
 
+        DEFSaplingTurnsLeft = 3;
+        if (enhanceSaplingsOn)
+        {
+            DEF = abilityValues[4] * 2;
+        }
+        else
+        {
+            DEF = abilityValues[4];
+        }
+
         battleController.SetTimer(delay);
         Debug.Log("Player DEF Sapling");
     }
@@ -347,6 +388,16 @@ public class PlayerController : MonoBehaviour
         //Small Jump
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        enhanceTurnsLeft = 4;
+        if (enhanceTurnsLeft > 0)
+        {
+            enhanceSaplingsOn = true;
+        }
+        else
+        {
+            enhanceSaplingsOn = false;
+        }
 
         battleController.SetTimer(delay);
         Debug.Log("Player Enhance Saplings");
@@ -362,6 +413,8 @@ public class PlayerController : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
 
+        Heal(abilityValues[1]);
+
         battleController.SetTimer(delay);
         Debug.Log("Player Brawl heal");
     }
@@ -373,6 +426,16 @@ public class PlayerController : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
 
+        blockTurnsLeft = 1;
+        if (counterTurnsLeft > 0)
+        {
+            DEF = abilityValues[2] + abilityValues[3];
+        }
+        else
+        {
+            DEF = abilityValues[2];
+        }
+
         battleController.SetTimer(delay);
         Debug.Log("Player Block");
     }
@@ -383,6 +446,18 @@ public class PlayerController : MonoBehaviour
         //Small Jump
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+
+        counterTurnsLeft = 2;
+        counterOn = true;
+        if(blockTurnsLeft > 0)
+        {
+            DEF = abilityValues[3] + abilityValues[2];
+        }
+        else
+        {
+            DEF = abilityValues[3];
+        }
+
 
         battleController.SetTimer(delay);
         Debug.Log("Player Counter");
@@ -430,7 +505,7 @@ public class PlayerController : MonoBehaviour
         //Damage Enemy
         enemy.GetComponent<Enemy>().Damage(abilityValues[5], 1.5f + 0.75f + delay);
 
-        battleController.SetTimer(delay + 1f);
+        battleController.SetTimer(delay + 3f);
         Debug.Log("Player x2 Slap");
     }
 
@@ -468,5 +543,81 @@ public class PlayerController : MonoBehaviour
     public int GetAbilityValue(int abilityNum)
     {
         return abilityValues[abilityNum];
+    }
+
+    public void DecrementTurn()
+    {
+        if(ATKSaplingTurnsLeft > 0) ATKSaplingTurnsLeft--;
+        if (DEFSaplingTurnsLeft > 0) DEFSaplingTurnsLeft--;
+        if (enhanceTurnsLeft > 0) enhanceTurnsLeft--;
+        if (blockTurnsLeft > 0) blockTurnsLeft--;
+        if (counterTurnsLeft > 0) counterTurnsLeft--;
+    }
+
+    public void IncrementTurn(int value)
+    {
+        if (ATKSaplingTurnsLeft > 0) ATKSaplingTurnsLeft += value;
+        if (DEFSaplingTurnsLeft > 0) DEFSaplingTurnsLeft += value;
+        if (enhanceTurnsLeft > 0) enhanceTurnsLeft += value;
+        if (blockTurnsLeft > 0) blockTurnsLeft += value;
+        if (counterTurnsLeft > 0) counterTurnsLeft += value;
+    }
+
+    public void CalculateBuffs()
+    {
+        DecrementTurn();
+
+        //Druid DEF
+        if(DEFSaplingTurnsLeft > 0)
+        {
+            if (enhanceSaplingsOn)
+            {
+                DEF = abilityValues[4] * 2;
+            }
+            else
+            {
+                DEF = abilityValues[4];
+            }
+        }
+        else
+        {
+            DEF = 0;
+        }
+        //Druid ATK
+        if(ATKSaplingTurnsLeft > 0)
+        {
+            
+        }
+        //Enhance
+        if(enhanceTurnsLeft > 0)
+        {
+            enhanceSaplingsOn = true;
+        }
+        else
+        {
+            enhanceSaplingsOn = false;
+        }
+
+        //Brawler DEF
+        if(blockTurnsLeft > 0)
+        {
+            if(counterTurnsLeft > 0)
+            {
+                DEF = abilityValues[2] + abilityValues[3];
+            }
+            else
+            {
+                DEF = abilityValues[2];
+            }
+        }
+        else if(counterTurnsLeft > 0)
+        {
+            DEF = abilityValues[3];
+        }
+        else
+        {
+            DEF = 0;
+            counterOn = false;
+        }
     }
 }

@@ -10,6 +10,7 @@ public class BattleController : MonoBehaviour
 {
     public enum State
     {
+        map,
         idle,
         attacking,
         inventory,
@@ -32,10 +33,19 @@ public class BattleController : MonoBehaviour
     PlayerController playerController;
     Enemy enemyController;
 
+    [Header("Run")]
+    public GameObject runWindow;
+    public Slider runSlider;
+    public float runDecayRate;
+    public float runClickAmount;
+    public float runMaxValue;
+    float runCurValue;
+    
     float timer;
 
     void Start()
     {
+        currentState = State.map;
         battleStep = 0;
 
         //Get necessary scripts
@@ -52,7 +62,7 @@ public class BattleController : MonoBehaviour
             //Activate and debuff or player turn-based attack
             if (battleStep == 0)
             {
-
+                playerController.CalculateBuffs();
                 battleStep = 1;
             }
             else if(battleStep == 1)
@@ -101,12 +111,45 @@ public class BattleController : MonoBehaviour
         //Player can cancel and go back if needed
         if(currentState == State.inventory)
         {
+            if(battleStep == 0)
+            {
 
+            }
         }
         //Running
         if(currentState == State.running)
         {
+            if(battleStep == 0)
+            {
+                timer -= Time.deltaTime;
 
+                if (timer <= 0)
+                {
+                    battleStep = 1;
+                }
+            }
+            else if(battleStep == 1)
+            {
+                runSlider.value -= runDecayRate;
+
+                if (Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    runSlider.value += runClickAmount;
+                }
+
+                if(runSlider.value >= runSlider.maxValue)
+                {
+                    battleStep = 2;
+                }
+            }
+            else if(battleStep == 2)
+            {
+                dungeonController.playerPosition.transform.DOMove(dungeonController.playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetEase(Ease.InOutBack);
+                dungeonController.SetNextRoomTimer(1f);
+                MoveRunButton(false, 1.5f);
+
+                battleStep = 3;
+            }
         }
         //Enemy action (also roulette wheel)
         if(currentState == State.enemy)
@@ -114,6 +157,7 @@ public class BattleController : MonoBehaviour
             //Activate and debuff or player turn-based attack
             if (battleStep == 0)
             {
+                enemyController.CalculateBuffs();
                 battleStep = 1;
             }
             else if (battleStep == 1)
@@ -166,7 +210,7 @@ public class BattleController : MonoBehaviour
     }
 
     //Moves once when fight begins and ends
-    public void MoveUI(bool onscreen, float delay)
+    public void MoveUI(bool onscreen, float delay, bool moveButtonsToo)
     {
         //Opening UI should double as Fight initialization
         //Reupdate HP Text
@@ -180,7 +224,7 @@ public class BattleController : MonoBehaviour
         if (onscreen)
         {
             GetComponent<RectTransform>().DOAnchorPosY(0, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
-            MoveButtons(true, delay + 0.5f);
+            if(moveButtonsToo) MoveButtons(true, delay + 0.5f);
 
             currentState = State.idle;
         }
@@ -207,6 +251,18 @@ public class BattleController : MonoBehaviour
         }
     }
 
+    public void MoveRunButton(bool onscreen, float delay)
+    {
+        if (onscreen)
+        {
+            runWindow.GetComponent<RectTransform>().DOAnchorPosX(750, 1f).SetEase(Ease.InOutBack).SetDelay(delay);
+        }
+        else
+        {
+            runWindow.GetComponent<RectTransform>().DOAnchorPosX(-400, 1f).SetEase(Ease.InOutBack).SetDelay(delay);
+        }
+    }
+
     public void GetEnemy(GameObject enemy)
     {
         this.enemy = enemy;
@@ -223,11 +279,19 @@ public class BattleController : MonoBehaviour
     }
     public void ItemButton()
     {
-
+        battleStep = 0;
+        dungeonController.inventoryWindow.GetComponent<InventoryController>().OpenInventory(true);
     }
     public void RunButton()
     {
+        MoveButtons(false, 0);
+        MoveRunButton(true, 0);
+        battleStep = 0;
+        timer = 1f;
 
+        runSlider.value = 0;
+        runSlider.minValue = 0;
+        runSlider.maxValue = runMaxValue;
     }
 
     //Final boss will destroy the run button >:)

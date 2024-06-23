@@ -83,9 +83,11 @@ public class DungeonController : MonoBehaviour
     [Header("Enemy")]
     public GameObject enemy;
     public BattleController battleController;
+    bool bossRoom;
 
     void Start()
     {
+        bossRoom = false;
         currentState = DungeonState.classSelect;
         curtain.SetActive(true);
         MoveCurtain(false, 0.5f);
@@ -203,7 +205,7 @@ public class DungeonController : MonoBehaviour
                 {
                     MoveToRoom(1);
                     currentState = DungeonState.room;
-                    currentRoom = RoomType.blessing;
+                    currentRoom = RandomRoom();
 
                     roomButtons[1].GetComponent<Button>().interactable = false;
                     roomButtons[2].GetComponent<Button>().interactable = false;
@@ -218,7 +220,7 @@ public class DungeonController : MonoBehaviour
                 {
                     MoveToRoom(2);
                     currentState = DungeonState.room;
-                    currentRoom = RoomType.curse;
+                    currentRoom = RandomRoom();
 
                     roomButtons[1].GetComponent<Button>().interactable = false;
                     roomButtons[2].GetComponent<Button>().interactable = false;
@@ -233,7 +235,7 @@ public class DungeonController : MonoBehaviour
                 {
                     MoveToRoom(3);
                     currentState = DungeonState.room;
-                    currentRoom = RoomType.item;
+                    currentRoom = RandomRoom();
 
                     roomButtons[1].GetComponent<Button>().interactable = false;
                     roomButtons[2].GetComponent<Button>().interactable = false;
@@ -248,7 +250,7 @@ public class DungeonController : MonoBehaviour
                 {
                     MoveToRoom(4);
                     currentState = DungeonState.room;
-                    currentRoom = RoomType.blessing;
+                    currentRoom = RandomRoom();
 
                     roomButtons[1].GetComponent<Button>().interactable = false;
                     roomButtons[2].GetComponent<Button>().interactable = false;
@@ -360,6 +362,7 @@ public class DungeonController : MonoBehaviour
                     MoveToRoom(10);
                     currentState = DungeonState.room;
                     currentRoom = RoomType.enemy;
+                    bossRoom = true;
 
                     roomButtons[10].GetComponent<Button>().interactable = false;
                     roomButtons[10].GetComponent<JumpyButtons>().enabled = false;
@@ -418,7 +421,7 @@ public class DungeonController : MonoBehaviour
                         //Open curtain
                         MoveCurtain(true, 2.3f);
                         //Move Map and Player down a bit
-                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         MovePickRoomText(true, 5f);
 
@@ -440,6 +443,8 @@ public class DungeonController : MonoBehaviour
                     MoveCurtain(true, 2.5f);
                     //Move Player
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
+                    //Move UI
+                    battleController.MoveUI(true, 4, false);
 
                     roomTimer = 1f;
                     roomStep = 1;
@@ -459,6 +464,8 @@ public class DungeonController : MonoBehaviour
 
                         //Close curtain
                         MoveCurtain(false, 1f);
+                        //Move UI
+                        battleController.MoveUI(false, 2, false);
                         //Move room back
                         roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
                         //Move player back
@@ -466,7 +473,7 @@ public class DungeonController : MonoBehaviour
                         //Open curtain
                         MoveCurtain(true, 2.3f);
                         //Move Map and Player down a bit
-                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         MovePickRoomText(true, 5f);
 
@@ -486,6 +493,8 @@ public class DungeonController : MonoBehaviour
                     MoveCurtain(true, 2.5f);
                     //Move Player
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
+                    //Move UI
+                    battleController.MoveUI(true, 4, false);
 
                     roomTimer = 1f;
                     roomStep = 1;
@@ -505,6 +514,8 @@ public class DungeonController : MonoBehaviour
 
                         //Close curtain
                         MoveCurtain(false, 1f);
+                        //Move UI
+                        battleController.MoveUI(false, 2, false);
                         //Move room back
                         roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
                         //Move player back
@@ -512,7 +523,7 @@ public class DungeonController : MonoBehaviour
                         //Open curtain
                         MoveCurtain(true, 2.3f);
                         //Move Map and Player down a bit
-                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         MovePickRoomText(true, 5f);
 
@@ -527,6 +538,7 @@ public class DungeonController : MonoBehaviour
                 if (roomStep == 0)
                 {
                     GameObject enemyChosen = enemies[Random.Range(0, enemies.Length)];
+                    if (bossRoom) { /* put boss here */ }
                     //Place Enemy
                     SpawnEnemy(enemyChosen); //Randomize between enemies [make pool if time permits]
                     //Open curtain
@@ -534,8 +546,9 @@ public class DungeonController : MonoBehaviour
                     //Move Player
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
                     //Move UI
-                    battleController.MoveUI(true, 4f);
+                    battleController.MoveUI(true, 4f, true);
                     battleController.GetEnemy(this.enemy);
+                    battleController.currentState = BattleController.State.idle;
 
                     roomTimer = 1f;
                     roomStep = 1;
@@ -562,9 +575,11 @@ public class DungeonController : MonoBehaviour
                         //Open curtain
                         MoveCurtain(true, 2.3f);
                         //Move Map and Player down a bit
-                        mapWindow.GetComponent<RectTransform>().DOAnchorPos(mapWindow.GetComponent<RectTransform>().anchoredPosition + bottomMapPos, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
+                        mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         MovePickRoomText(true, 5f);
+
+                        battleController.currentState = BattleController.State.map;
 
                         currentFloor++;
                         currentState = DungeonState.map;
@@ -637,7 +652,7 @@ public class DungeonController : MonoBehaviour
         GameObject newChest = this.chest;
 
         newChest = Instantiate(chest, roomObjectPosition);
-        newChest.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+        newChest.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, newChest.GetComponent<RectTransform>().anchoredPosition.y);
     }
 
     void SpawnBlessing(GameObject blessingStatue)

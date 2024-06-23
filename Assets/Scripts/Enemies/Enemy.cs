@@ -8,7 +8,7 @@ public class Enemy : MonoBehaviour
 {
     public string enemyName;
     public int HP;
-    [SerializeField] int DEF;
+    [SerializeField] protected int DEF;
 
     public GameObject itemDropped;
 
@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviour
     public int[] abilityValues;
     public float[] abilityLength;
     public bool[] offensive;
+    protected bool invulnerable;
 
     DungeonController dungeonController;
     protected BattleController battleController;
@@ -30,7 +31,7 @@ public class Enemy : MonoBehaviour
 
     public void Damage(int value, float delay)
     {
-        StartCoroutine(DelayedDamage(value, delay));
+        StartCoroutine(DelayedDamage(value, delay, invulnerable));
 
         //Shake
         RectTransform rect = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy.GetComponent<RectTransform>();
@@ -69,11 +70,15 @@ public class Enemy : MonoBehaviour
         return abilityLength[abilityNum] + delay;
     }
 
-    IEnumerator DelayedDamage(int value, float delay)
+    IEnumerator DelayedDamage(int value, float delay, bool invulnerable)
     {
         yield return new WaitForSeconds(delay);
-        HP = Mathf.Clamp(HP - Mathf.Clamp(value - DEF, 0, 100), 0, 100);
 
+        if(invulnerable) { /*idk show indication of miss or smth */ }
+        else
+        {
+            HP = Mathf.Clamp(HP - Mathf.Clamp(value - DEF, 0, 100), 0, 100);
+        }
 
         if (HP <= 0)
         {
@@ -89,6 +94,21 @@ public class Enemy : MonoBehaviour
     void Die()
     {
         GetComponent<RectTransform>().DOJumpAnchorPos(new Vector2(GetComponent<RectTransform>().anchoredPosition.x + 200f, GetComponent<RectTransform>().anchoredPosition.y - 2000f), 900f, 1, 3f).SetEase(Ease.OutCubic);
-        GetComponent<RectTransform>().DORotate(new Vector3(0, 0, 3000), 3f, RotateMode.FastBeyond360).SetEase(Ease.OutCubic);
+        GetComponent<RectTransform>().DORotate(new Vector3(0, 0, -3000), 3f, RotateMode.FastBeyond360).SetEase(Ease.OutCubic);
+
+        battleController.MoveButtons(false, 0f);
+        battleController.MoveUI(false, 0f, false);
+        //Close roulette window
+        GameObject.FindGameObjectWithTag("RouletteWheel").GetComponent<RectTransform>().DOAnchorPosY(540f, 1f).SetEase(Ease.InOutCubic).SetDelay(1f);
+    }
+
+    public virtual void CalculateBuffs()
+    {
+
+    }
+
+    public virtual void DecrementTurn()
+    {
+
     }
 }

@@ -1,46 +1,31 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using UnityEngine.UI;
 
-/*
-Abilities:
-
-1:  Nothing (Hoots)
-2:  1 DMG (Peck)
-3:  1 DMG (Peck)
-4:  2 DMG (Slash)
-5:  Dodge attacks for 1 turn (Fly)
-6: Jumpscare (Deals 3 DMG)
-‌
-Item Drop: Familiar Knife (Mumei knife)
-*/
-
-public class KnifeOwl : Enemy
+public class MoaiStatue : Enemy
 {
-    int flyTurnsLeft;
-    public GameObject jumpscareImage;
+    int hardenTurnsLeft;
 
     protected override void Start()
     {
         base.Start();
 
-        battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
+        hardenTurnsLeft = 0;
 
-        flyTurnsLeft = 0;
+        battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
     }
 
     //-------ABILITIES--------
     //Nothing
     public void Nothing(float delay)
     {
-        Debug.Log("Owl Nothing");
+        Debug.Log("Moai Nothing");
         battleController.SetTimer(delay);
     }
 
-    //Peck
-    public void Peck(int value, float delay)
+    //Throw Pebble
+    public void ThrowPebble(int value, float delay)
     {
         RectTransform rect = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy.GetComponent<RectTransform>();
         Vector2 originalPos = rect.anchoredPosition;
@@ -58,8 +43,8 @@ public class KnifeOwl : Enemy
         Debug.Log("Owl Peck");
     }
 
-    //Slash
-    public void Slash(int value, float delay)
+    //RockSlide
+    public void RockSlide(int value, float delay)
     {
         RectTransform rect = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy.GetComponent<RectTransform>();
         Vector2 originalPos = rect.anchoredPosition;
@@ -69,6 +54,12 @@ public class KnifeOwl : Enemy
         rect.DOAnchorPosX(rect.anchoredPosition.x - 60f, 0.25f).SetEase(Ease.InCubic).SetDelay(0.5f + delay);
         rect.DOAnchorPosX(originalPos.x, 1f).SetEase(Ease.OutCubic).SetDelay(1f + delay);
 
+        //Replace above with this if time permits
+        /*
+         * Pebbles fall from above the window at random x coordinates near the player for 1.5s
+         * 
+         */
+
         //Damage Player
         GameObject player = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().player;
         player.GetComponent<PlayerController>().Damage(value, 0.75f + delay);
@@ -77,38 +68,32 @@ public class KnifeOwl : Enemy
         Debug.Log("Owl Slash");
     }
 
-    //Fly
-    public void Fly(float delay)
+    //Harden
+    public void Harden(float delay)
     {
         battleController.SetTimer(delay);
-        flyTurnsLeft = 1;
-        invulnerable = true;
-        Debug.Log("Owl Fly");
-    }
+        hardenTurnsLeft = 1;
+        DEF = 1;
 
-    //Jumpscare
-    public void Jumpscare(int value, float delay)
-    {
-        //Jumpscare 
-        jumpscareImage.GetComponent<Image>().DOColor(new Color(1, 1, 1, 1), 1).SetEase(Ease.Flash, 10, 0.5f).SetDelay(delay);
-        //Damage Player
-        GameObject player = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().player;
-        player.GetComponent<PlayerController>().Damage(value, delay);
-
-        battleController.SetTimer(delay + 1f);
-        Debug.Log("Owl Jumpscare");
+        Debug.Log("Moai Harden");
     }
 
     public override void CalculateBuffs()
     {
         DecrementTurn();
 
-        if (flyTurnsLeft > 0) invulnerable = true;
-        else invulnerable = false;
+        if(hardenTurnsLeft > 0)
+        {
+            DEF = 1;
+        }
+        else
+        {
+            DEF = 0;
+        }
     }
 
     public override void DecrementTurn()
     {
-        if (flyTurnsLeft > 0) flyTurnsLeft--;
+        if (hardenTurnsLeft > 0) hardenTurnsLeft--;
     }
 }
