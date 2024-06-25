@@ -325,6 +325,8 @@ public class PlayerController : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
 
+        Heal(abilityValues[1]);
+
         battleController.SetTimer(delay);
         Debug.Log("Player heals");
     }
@@ -523,7 +525,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //Ability that directly damages enemy
-    public float PlayOffensiveAbility(int abilityNum, float delay)
+    public void PlayOffensiveAbility(int damage, float delay)
     {
         RectTransform rect = GetComponent<RectTransform>();
         Vector2 originalPos = rect.anchoredPosition;
@@ -535,9 +537,7 @@ public class PlayerController : MonoBehaviour
 
         //Damage Enemy
         GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
-        enemy.GetComponent<Enemy>().Damage(abilityValues[abilityNum], 0.75f + delay);
-
-        return abilityLength[abilityNum] + delay;
+        enemy.GetComponent<Enemy>().Damage(damage, 0.75f + delay);
     }
 
     public int GetAbilityValue(int abilityNum)
@@ -586,7 +586,15 @@ public class PlayerController : MonoBehaviour
         //Druid ATK
         if(ATKSaplingTurnsLeft > 0)
         {
-            
+            GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
+            if (enhanceSaplingsOn)
+            {
+                enemy.GetComponent<Enemy>().Damage(abilityValues[3] * 2, 1f);
+            }
+            else
+            {
+                enemy.GetComponent<Enemy>().Damage(abilityValues[3], 1f);
+            }
         }
         //Enhance
         if(enhanceTurnsLeft > 0)

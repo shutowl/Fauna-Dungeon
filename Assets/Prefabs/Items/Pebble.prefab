@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5706293355327893982}
   - component: {fileID: 1128799562330143549}
   m_Layer: 0
-  m_Name: FamiliarKnife
+  m_Name: Pebble
   m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -191,12 +191,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14e4dc77abfc60e48bcb9dc963398f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemName: Familiar Knife
-  itemDesc: 'There''s a frightening aura emanating from this knife.
+  itemName: Pebble
+  itemDesc: 'A harmless pebble, unless thrown very hard.
 
 
-    [Passive]:
-    +[1] to attack abilities
+    [Passive]: None
 
 
-    [Active]: Throw knife to deal 4 DMG'
+    [Active]:
+    Randomly deal between 1-4 damage'

@@ -40,7 +40,7 @@ public class MoaiStatue : Enemy
         player.GetComponent<PlayerController>().Damage(value, 0.75f + delay);
 
         battleController.SetTimer(delay + 1f);
-        Debug.Log("Owl Peck");
+        Debug.Log("Moai Pebble");
     }
 
     //RockSlide
@@ -65,7 +65,7 @@ public class MoaiStatue : Enemy
         player.GetComponent<PlayerController>().Damage(value, 0.75f + delay);
 
         battleController.SetTimer(delay + 1f);
-        Debug.Log("Owl Slash");
+        Debug.Log("Moai Rock Slide");
     }
 
     //Harden

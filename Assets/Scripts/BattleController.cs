@@ -111,9 +111,21 @@ public class BattleController : MonoBehaviour
         //Player can cancel and go back if needed
         if(currentState == State.inventory)
         {
+            //Selecting inventory
             if(battleStep == 0)
             {
+                //incremented by Item
+            }
+            if(battleStep == 1)
+            {
+                timer -= Time.deltaTime;
 
+                if (timer <= 0)
+                {
+                    Debug.Log(enemyController.enemyName + "'s Turn!");
+                    battleStep = 0;
+                    currentState = State.enemy;
+                }
             }
         }
         //Running
@@ -280,7 +292,13 @@ public class BattleController : MonoBehaviour
     public void ItemButton()
     {
         battleStep = 0;
+        MoveButtons(false, 0);
         dungeonController.inventoryWindow.GetComponent<InventoryController>().OpenInventory(true);
+        GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
+        foreach(GameObject button in items)
+        {
+            button.GetComponent<Button>().interactable = true;
+        }
     }
     public void RunButton()
     {

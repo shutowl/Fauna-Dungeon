@@ -484,6 +484,7 @@ public class RouletteWheel : MonoBehaviour
         continueButton.gameObject.SetActive(false);
         spinning = true;
         spinTimer = -50;
+        spinRateTimer = 0.02f;
     }
 
     public void SetPlayer(GameObject player)

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3870518193938064786}
   - component: {fileID: 600701848680367339}
   - component: {fileID: 1227241851242454960}
-  - component: {fileID: 742202352099593444}
+  - component: {fileID: 7527809988440730013}
   m_Layer: 0
   m_Name: MoaiStatue
   m_TagString: Enemy
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &742202352099593444
+--- !u!114 &7527809988440730013
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,13 +85,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1115543416313730306}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 982ab151e072606428dbca71a39e0e47, type: 3}
+  m_Script: {fileID: 11500000, guid: db48418730382fc4b96263365ffeb833, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemyName: Moai Statue
   HP: 15
   DEF: 0
-  itemDropped: {fileID: 3596759878101137303, guid: 000988ab69d9d7b4bbb334a2e850c139, type: 3}
+  itemDropped: {fileID: 3596759878101137303, guid: 58004c0a63336d7478ea29318516e0b8, type: 3}
   abilities:
   - Stares at you (Nothing)
   - Harden (+1 DEF for 1 turn)

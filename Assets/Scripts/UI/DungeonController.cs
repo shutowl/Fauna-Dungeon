@@ -71,7 +71,7 @@ public class DungeonController : MonoBehaviour
 
     [Header("Inventory")]
     public GameObject[] inventorySlots;
-    bool[] inventoryFilled;
+    public bool[] inventoryFilled;
 
     [Header("Roulette")]
     public GameObject rouletteWindow;
@@ -804,8 +804,9 @@ public class DungeonController : MonoBehaviour
         itemDescText.text = itemDesc;
     }
 
-    public void ObtainItem(GameObject item)
+    public int ObtainItem(GameObject item)
     {
+        int inventoryNum = 0;
         for(int i = 0; i < inventoryFilled.Length; i++)
         {
             if(inventoryFilled[i] == false)
@@ -822,7 +823,7 @@ public class DungeonController : MonoBehaviour
                         break;
                     }
                 }
-
+                inventoryNum = i;
                 break;
             }
         }
@@ -836,6 +837,8 @@ public class DungeonController : MonoBehaviour
         if (itemSlots[0].transform.childCount > 0) Destroy(itemSlots[0].transform.GetChild(0).gameObject, 2f);
         if (itemSlots[1].transform.childCount > 0) Destroy(itemSlots[1].transform.GetChild(0).gameObject, 2f);
         if (itemSlots[2].transform.childCount > 0) Destroy(itemSlots[2].transform.GetChild(0).gameObject, 2f);
+
+        return inventoryNum;
     }
 
     public void MoveCurtain(bool onscreen, float delay)
@@ -903,5 +906,10 @@ public class DungeonController : MonoBehaviour
         {
             return RoomType.curse;
         }
+    }
+
+    public GameObject GetPlayer()
+    {
+        return player;
     }
 }
