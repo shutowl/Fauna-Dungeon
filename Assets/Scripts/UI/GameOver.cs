@@ -23,9 +23,10 @@ public class GameOver : MonoBehaviour
 
     public void InitiateGameOver(GameObject player)
     {
+        gameObject.SetActive(true);
         this.player = player;
-        player.transform.SetParent(this.transform);
-        player.transform.DOMove(Vector2.zero, 3).SetEase(Ease.OutCubic);
+        GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().playerPosition.transform.SetParent(this.transform);
+        GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().playerPosition.transform.DOMove(Vector2.zero, 3).SetEase(Ease.OutCubic);
         backgroundColor.DOColor(new Color(0, 0, 0, 0.5f), 2f).SetEase(Ease.OutCubic);
 
         gameOverText.GetComponent<RectTransform>().DOAnchorPosY(-200, 2).SetEase(Ease.OutBounce).SetDelay(3f);

@@ -195,8 +195,9 @@ MonoBehaviour:
   itemDesc: 'A harmless pebble, unless thrown very hard.
 
 
-    [Passive]: None
+    [Passive]: +1 DEF
 
 
     [Active]:
     Randomly deal between 1-4 damage'
+  inventorySlotNum: 0

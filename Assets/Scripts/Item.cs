@@ -31,12 +31,31 @@ public class Item : MonoBehaviour
             inventorySlotNum = dungeonController.GetComponent<DungeonController>().ObtainItem(this.gameObject);
             dungeonController.GetComponent<DungeonController>().CloseItemWindow(0.5f);
 
+            dungeonController = GameObject.FindGameObjectWithTag("DungeonController");
+
+            //Player holds item (Passive Abilities)
+            //Dice
+            if (itemName.Equals("Chaotic Dice"))
+            {
+                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().IncreaseMaxRerolls(1);
+            }
+            //Knife
+            if(itemName.Equals("Familiar Knife"))
+            {
+                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().knifeHeld = true;
+            }
+            //Pebble
+            if (itemName.Equals("Pebble"))
+            {
+                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().pebbleHeld = true;
+            }
+
             inInventory = true;
             Debug.Log(itemName + " obtained!");
         }
         else
         {
-            //Use item in battle
+            //Use item in battle (Active Abilities)
 
             //Controllers
             dungeonController = GameObject.FindGameObjectWithTag("DungeonController");
@@ -86,18 +105,21 @@ public class Item : MonoBehaviour
                     case 2: dungeonController.GetComponent<DungeonController>().enemy.GetComponent<Enemy>().Damage(2, 2.5f); break;
                     case 3: dungeonController.GetComponent<DungeonController>().enemy.GetComponent<Enemy>().Damage(4, 2.5f); break;
                 }
+                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().IncreaseMaxRerolls(-1);
             }
 
             //Knife (deal 4 dmg)
             else if (itemName.Equals("Familiar Knife"))
             {
                 dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().PlayOffensiveAbility(4, 1f);
+                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().knifeHeld = false;
             }
 
             //Pebble (randomly deal 1-4 dmg)
             else if (itemName.Equals("Pebble"))
             {
                 dungeonController.GetComponent<DungeonController>().enemy.GetComponent<Enemy>().Damage(Random.Range(1, 5), 1f);
+                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().pebbleHeld = false;
             }
 
             //Disable item buttons on use (one item per use)

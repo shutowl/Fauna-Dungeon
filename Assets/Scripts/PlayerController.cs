@@ -28,6 +28,11 @@ public class PlayerController : MonoBehaviour
     BattleController battleController;
     GameOver gameOverController;
 
+    [Header("Passive Item Effects")]
+    public bool diceHeld;
+    public bool knifeHeld;
+    public bool pebbleHeld;
+
     [Header("Turn-based moves")]
     public int ATKSaplingTurnsLeft;
     public int DEFSaplingTurnsLeft;
@@ -48,7 +53,7 @@ public class PlayerController : MonoBehaviour
 
         dungeonController = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>();
         battleController = GameObject.FindGameObjectWithTag("BattleController").GetComponent<BattleController>();
-        gameOverController = GameObject.FindGameObjectWithTag("GameOverController").GetComponent<GameOver>();
+        gameOverController = FindObjectOfType<GameOver>(true);
 
         ATKSaplingTurnsLeft = 0;
         DEFSaplingTurnsLeft = 0;
@@ -58,6 +63,10 @@ public class PlayerController : MonoBehaviour
         enhanceSaplingsOn = false;
         ATKSaplingOn = false;
         counterOn = false;
+
+        diceHeld = false;
+        knifeHeld = false;
+        pebbleHeld = false;
     }
 
     private void Update()
@@ -287,7 +296,8 @@ public class PlayerController : MonoBehaviour
     IEnumerator DelayedDamage(int value, float delay)
     {
         yield return new WaitForSeconds(delay);
-        currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
+        if(pebbleHeld) currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - (DEF + 1)), 0, 10)), 0, maxHP);
+        else currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
 
         //Brawler Counter
         if (counterOn)
@@ -344,7 +354,8 @@ public class PlayerController : MonoBehaviour
 
         //Damage Enemy
         GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
-        enemy.GetComponent<Enemy>().Damage(abilityValues[4], 0.75f + delay);
+        if(knifeHeld) enemy.GetComponent<Enemy>().Damage(abilityValues[4] + 1, 0.75f + delay);
+        else enemy.GetComponent<Enemy>().Damage(abilityValues[4], 0.75f + delay);
 
         battleController.SetTimer(delay);
         Debug.Log("Player vine");
@@ -478,7 +489,8 @@ public class PlayerController : MonoBehaviour
 
         //Damage Enemy
         GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
-        enemy.GetComponent<Enemy>().Damage(abilityValues[4], 0.75f + delay);
+        if(knifeHeld) enemy.GetComponent<Enemy>().Damage(abilityValues[4] + 1, 0.75f + delay);
+        else enemy.GetComponent<Enemy>().Damage(abilityValues[4], 0.75f + delay);
 
         battleController.SetTimer(delay + 1f);
         Debug.Log("Player Slap");
@@ -497,7 +509,8 @@ public class PlayerController : MonoBehaviour
 
         //Damage Enemy
         GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
-        enemy.GetComponent<Enemy>().Damage(abilityValues[5], 0.75f + delay);
+        if(knifeHeld) enemy.GetComponent<Enemy>().Damage(abilityValues[5] + 1, 0.75f + delay);
+        else enemy.GetComponent<Enemy>().Damage(abilityValues[5], 0.75f + delay);
 
         //Wind up attack towards enemy again
         rect.DOAnchorPosX(rect.anchoredPosition.x - 30f, 0.5f).SetEase(Ease.OutCubic).SetDelay(1.5f + delay);
@@ -505,7 +518,8 @@ public class PlayerController : MonoBehaviour
         rect.DOAnchorPosX(originalPos.x, 1f).SetEase(Ease.OutCubic).SetDelay(1.5f + 0.75f + delay);
 
         //Damage Enemy
-        enemy.GetComponent<Enemy>().Damage(abilityValues[5], 1.5f + 0.75f + delay);
+        if(knifeHeld) enemy.GetComponent<Enemy>().Damage(abilityValues[5] + 1, 1.5f + 0.75f + delay);
+        else enemy.GetComponent<Enemy>().Damage(abilityValues[5], 1.5f + 0.75f + delay);
 
         battleController.SetTimer(delay + 3f);
         Debug.Log("Player x2 Slap");
@@ -537,7 +551,8 @@ public class PlayerController : MonoBehaviour
 
         //Damage Enemy
         GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
-        enemy.GetComponent<Enemy>().Damage(damage, 0.75f + delay);
+        if(knifeHeld) enemy.GetComponent<Enemy>().Damage(damage + 1, 0.75f + delay);
+        else enemy.GetComponent<Enemy>().Damage(damage, 0.75f + delay);
     }
 
     public int GetAbilityValue(int abilityNum)
@@ -589,11 +604,13 @@ public class PlayerController : MonoBehaviour
             GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
             if (enhanceSaplingsOn)
             {
-                enemy.GetComponent<Enemy>().Damage(abilityValues[3] * 2, 1f);
+                if(knifeHeld) enemy.GetComponent<Enemy>().Damage((abilityValues[3] + 1) * 2, 1f);
+                else enemy.GetComponent<Enemy>().Damage(abilityValues[3] * 2, 1f);
             }
             else
             {
-                enemy.GetComponent<Enemy>().Damage(abilityValues[3], 1f);
+                if(knifeHeld) enemy.GetComponent<Enemy>().Damage(abilityValues[3] + 1, 1f);
+                else enemy.GetComponent<Enemy>().Damage(abilityValues[3], 1f);
             }
         }
         //Enhance

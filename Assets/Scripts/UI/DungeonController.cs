@@ -845,11 +845,11 @@ public class DungeonController : MonoBehaviour
     {
         if (onscreen)
         {
-            curtain.GetComponent<RectTransform>().DOAnchorPosY(Mathf.Abs(curtain.GetComponent<RectTransform>().anchoredPosition.y), 1f).SetEase(Ease.InCubic).SetDelay(delay);
+            curtain.GetComponent<RectTransform>().DOAnchorPosY(-540, 1f).SetEase(Ease.InCubic).SetDelay(delay);
         }
         else
         {
-            curtain.GetComponent<RectTransform>().DOAnchorPosY(-curtain.GetComponent<RectTransform>().anchoredPosition.y, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+            curtain.GetComponent<RectTransform>().DOAnchorPosY(540, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
         }
     }
 

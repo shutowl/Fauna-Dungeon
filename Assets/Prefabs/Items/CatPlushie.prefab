@@ -196,8 +196,9 @@ MonoBehaviour:
     calm you down.
 
 
-    [Passive]: 50% chance to heal every turn
+    [Passive]: 50% chance to heal every turn (not working yet
+    D:)
 
 
-    [Active]:
-    Instantly heal 5 HP'
+    [Active]: Instantly heal 5 HP'
+  inventorySlotNum: 0
