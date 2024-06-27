@@ -20,6 +20,10 @@ public class MenuController : MonoBehaviour
         buttons[1].GetComponent<RectTransform>().anchoredPosition = new Vector3(-buttons[1].GetComponent<RectTransform>().anchoredPosition.x, buttons[1].GetComponent<RectTransform>().anchoredPosition.y);
         buttons[2].GetComponent<RectTransform>().anchoredPosition = new Vector3(-buttons[2].GetComponent<RectTransform>().anchoredPosition.x, buttons[2].GetComponent<RectTransform>().anchoredPosition.y);
         MoveButtons(true);
+
+        AudioManager.Instance.ChangeSFXVolume(0.05f);
+        AudioManager.Instance.ChangeBGMVolume(0.05f);
+        AudioManager.Instance.PlayMusic("LMSHCalm");
     }
 
     private void Update()
@@ -33,6 +37,11 @@ public class MenuController : MonoBehaviour
         {
             logo.GetComponent<TextHover>().enabled = true;
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            AudioManager.Instance.Play("ButtonClick");
+        }
     }
 
     public void StartGame()
@@ -41,6 +50,8 @@ public class MenuController : MonoBehaviour
         MoveCurtain();
         MoveButtons(false);
         StartCoroutine(DelayedLoadScene(buttonMoveDuration, "Dungeon"));
+
+        AudioManager.Instance.Play("ButtonClick");
     }
 
     public void MoveButtons(bool onscreen)
@@ -74,6 +85,7 @@ public class MenuController : MonoBehaviour
         if(buttonMoveTimer <= 0)
         {
             curtain.GetComponent<RectTransform>().DOAnchorPosY(-curtain.GetComponent<RectTransform>().anchoredPosition.y, 1f).SetEase(Ease.OutCubic).SetDelay(1f);
+            AudioManager.Instance.Play("Curtain");
         }
     }
 

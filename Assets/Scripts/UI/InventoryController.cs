@@ -40,6 +40,12 @@ public class InventoryController : MonoBehaviour
             GetComponent<RectTransform>().DOKill();
             GetComponent<RectTransform>().DOAnchorPosX(297.66f, moveDuration).SetEase(Ease.OutCubic);
         }
+        if (keepOpen)
+        {
+            moveTimer = moveDuration;
+            GetComponent<RectTransform>().DOKill();
+            GetComponent<RectTransform>().DOAnchorPosX(297.66f, moveDuration).SetEase(Ease.OutCubic);
+        }
 
         this.keepOpen = keepOpen;
     }

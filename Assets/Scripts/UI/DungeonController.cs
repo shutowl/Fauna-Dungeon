@@ -390,7 +390,7 @@ public class DungeonController : MonoBehaviour
                     //Place Chest
                     SpawnChest(chest);
                     //Open curtain
-                    MoveCurtain(true, 2.5f);
+                    MoveCurtain(false, 2.5f);
                     //Move player again
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
 
@@ -413,13 +413,13 @@ public class DungeonController : MonoBehaviour
                         StartCoroutine(LockCursor(5f));
 
                         //Close curtain
-                        MoveCurtain(false, 1f);
+                        MoveCurtain(true, 1f);
                         //Move room back
                         roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
                         //Move player back
                         playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
                         //Open curtain
-                        MoveCurtain(true, 2.3f);
+                        MoveCurtain(false, 2.3f);
                         //Move Map and Player down a bit
                         mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
@@ -429,6 +429,7 @@ public class DungeonController : MonoBehaviour
 
                         currentFloor++;
                         currentState = DungeonState.map;
+                        AudioManager.Instance.SwitchBGM();
                     }
                 }
             }
@@ -440,7 +441,7 @@ public class DungeonController : MonoBehaviour
                     //Place Statue
                     SpawnBlessing(blessingStatue);
                     //Open curtain
-                    MoveCurtain(true, 2.5f);
+                    MoveCurtain(false, 2.5f);
                     //Move Player
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
                     //Move UI
@@ -463,7 +464,7 @@ public class DungeonController : MonoBehaviour
                         StartCoroutine(LockCursor(5f));
 
                         //Close curtain
-                        MoveCurtain(false, 1f);
+                        MoveCurtain(true, 1f);
                         //Move UI
                         battleController.MoveUI(false, 2, false);
                         //Move room back
@@ -471,7 +472,7 @@ public class DungeonController : MonoBehaviour
                         //Move player back
                         playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
                         //Open curtain
-                        MoveCurtain(true, 2.3f);
+                        MoveCurtain(false, 2.3f);
                         //Move Map and Player down a bit
                         mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
@@ -479,6 +480,7 @@ public class DungeonController : MonoBehaviour
 
                         currentFloor++;
                         currentState = DungeonState.map;
+                        AudioManager.Instance.SwitchBGM();
                     }
                 }
             }
@@ -490,7 +492,7 @@ public class DungeonController : MonoBehaviour
                     //Place Statue
                     SpawnCurse(curseStatue);
                     //Open curtain
-                    MoveCurtain(true, 2.5f);
+                    MoveCurtain(false, 2.5f);
                     //Move Player
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
                     //Move UI
@@ -513,7 +515,7 @@ public class DungeonController : MonoBehaviour
                         StartCoroutine(LockCursor(5f));
 
                         //Close curtain
-                        MoveCurtain(false, 1f);
+                        MoveCurtain(true, 1f);
                         //Move UI
                         battleController.MoveUI(false, 2, false);
                         //Move room back
@@ -521,7 +523,7 @@ public class DungeonController : MonoBehaviour
                         //Move player back
                         playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
                         //Open curtain
-                        MoveCurtain(true, 2.3f);
+                        MoveCurtain(false, 2.3f);
                         //Move Map and Player down a bit
                         mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
@@ -529,6 +531,7 @@ public class DungeonController : MonoBehaviour
 
                         currentFloor++;
                         currentState = DungeonState.map;
+                        AudioManager.Instance.SwitchBGM();
                     }
                 }
             }
@@ -538,11 +541,13 @@ public class DungeonController : MonoBehaviour
                 if (roomStep == 0)
                 {
                     GameObject enemyChosen = enemies[Random.Range(0, enemies.Length)];
+                    if (currentFloor == 2) enemyChosen = enemies[0];
+                    else if (currentFloor == 4) enemyChosen = enemies[1];
                     if (bossRoom) { /* put boss here */ }
                     //Place Enemy
                     SpawnEnemy(enemyChosen); //Randomize between enemies [make pool if time permits]
                     //Open curtain
-                    MoveCurtain(true, 2.5f);
+                    MoveCurtain(false, 2.5f);
                     //Move Player
                     playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-Screen.width, 0), 1f).SetDelay(3.5f);
                     //Move UI
@@ -567,13 +572,13 @@ public class DungeonController : MonoBehaviour
                         StartCoroutine(LockCursor(5f));
 
                         //Close curtain
-                        MoveCurtain(false, 1f);
+                        MoveCurtain(true, 1f);
                         //Move room back
                         roomWindow.GetComponent<RectTransform>().DOAnchorPosX(1920, 0.1f).SetDelay(2f);
                         //Move player back
                         playerPosition.transform.DOMove(lastRoom.transform.position, 0.1f).SetDelay(2.2f);
                         //Open curtain
-                        MoveCurtain(true, 2.3f);
+                        MoveCurtain(false, 2.3f);
                         //Move Map and Player down a bit
                         mapWindow.GetComponent<RectTransform>().DOAnchorPosY(mapWindow.GetComponent<RectTransform>().anchoredPosition.y + bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
                         playerPosition.GetComponent<RectTransform>().DOAnchorPosY(bottomMapPos.y, 2f).SetEase(Ease.InOutCubic).SetDelay(3f);
@@ -583,6 +588,7 @@ public class DungeonController : MonoBehaviour
 
                         currentFloor++;
                         currentState = DungeonState.map;
+                        AudioManager.Instance.SwitchBGM();
                     }
                 }
             }
@@ -706,7 +712,7 @@ public class DungeonController : MonoBehaviour
         //Move player first
         playerPosition.transform.DOMove(roomButtons[room].transform.position, 1f).SetEase(Ease.OutCubic);
         //Close curtain
-        MoveCurtain(false, 1f);
+        MoveCurtain(true, 1f);
         //Move stage and player
         roomWindow.GetComponent<RectTransform>().DOAnchorPosX(0, 0).SetDelay(2f);
         playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-700-Screen.width, 0), 0.1f).SetDelay(2.1f);
@@ -716,6 +722,7 @@ public class DungeonController : MonoBehaviour
         //Move player again
         playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-1920, 0), 1f).SetDelay(3.5f);
         */
+        AudioManager.Instance.SwitchBGM();
     }
 
     public void MoveItemWindow(float delay, bool chest)
@@ -845,12 +852,13 @@ public class DungeonController : MonoBehaviour
     {
         if (onscreen)
         {
-            curtain.GetComponent<RectTransform>().DOAnchorPosY(-540, 1f).SetEase(Ease.InCubic).SetDelay(delay);
+            curtain.GetComponent<RectTransform>().DOAnchorPosY(-540, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
         }
         else
         {
-            curtain.GetComponent<RectTransform>().DOAnchorPosY(540, 1f).SetEase(Ease.OutCubic).SetDelay(delay);
+            curtain.GetComponent<RectTransform>().DOAnchorPosY(613, 1f).SetEase(Ease.InCubic).SetDelay(delay);
         }
+        AudioManager.Instance.Play("Curtain");
     }
 
     public void MoveRouletteWindow(float delay, string type)

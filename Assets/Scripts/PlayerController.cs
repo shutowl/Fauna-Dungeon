@@ -298,6 +298,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(delay);
         if(pebbleHeld) currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - (DEF + 1)), 0, 10)), 0, maxHP);
         else currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
+        AudioManager.Instance.Play("Punch");
 
         //Brawler Counter
         if (counterOn)
@@ -305,6 +306,7 @@ public class PlayerController : MonoBehaviour
             //Damage Enemy
             GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
             enemy.GetComponent<Enemy>().Damage(abilityValues[3], 0.25f);
+            AudioManager.Instance.Play("Punch");
         }
 
         if (currentHP == 0)

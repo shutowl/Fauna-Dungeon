@@ -23,5 +23,6 @@ public class Chest : MonoBehaviour
         openChestText.SetActive(false);
         chestSprite.sprite = openChestImage;
         dungeonController.GetComponent<DungeonController>().MoveItemWindow(0.5f, true);
+        AudioManager.Instance.Play("ButtonClick");
     }
 }

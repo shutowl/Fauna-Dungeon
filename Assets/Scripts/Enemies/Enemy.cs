@@ -78,6 +78,7 @@ public class Enemy : MonoBehaviour
         else
         {
             HP = Mathf.Clamp(HP - Mathf.Clamp(value - DEF, 0, 100), 0, 100);
+            AudioManager.Instance.Play("Punch");
         }
 
         if (HP <= 0)

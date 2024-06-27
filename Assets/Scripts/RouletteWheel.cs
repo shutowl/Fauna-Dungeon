@@ -460,11 +460,13 @@ public class RouletteWheel : MonoBehaviour
         spinDuration = Random.Range(2.5f, 3.5f);
         slotIndex = Random.Range(0, 6);
         spinTimer = spinDuration;
+        spinRateTimer = spinRate;
 
         rerollButton.gameObject.SetActive(false);
         continueButton.gameObject.SetActive(false);
 
         //Debug.Log("Rate: " + spinRate + ". Duration: " + spinDuration);
+        AudioManager.Instance.Play("ButtonClick");
     }
 
     public void Reroll()
@@ -476,6 +478,7 @@ public class RouletteWheel : MonoBehaviour
         Spin();
 
         Debug.Log(playerController.GetCurrentRerolls());
+        AudioManager.Instance.Play("ButtonClick");
     }
 
     public void Continue()
@@ -484,7 +487,8 @@ public class RouletteWheel : MonoBehaviour
         continueButton.gameObject.SetActive(false);
         spinning = true;
         spinTimer = -50;
-        spinRateTimer = 0.02f;
+        spinRateTimer = 0.5f;
+        AudioManager.Instance.Play("ButtonClick");
     }
 
     public void SetPlayer(GameObject player)

@@ -20,5 +20,6 @@ public class CurseStatue : MonoBehaviour
 
         //Show Roulette Window (roulettes between 6 curses)
         dungeonController.GetComponent<DungeonController>().MoveRouletteWindow(0.5f, "curse");
+        AudioManager.Instance.Play("ButtonClick");
     }
 }

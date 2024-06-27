@@ -20,6 +20,7 @@ public class JumpyButtons : MonoBehaviour
                 timer = duration;
             }
         }
+        AudioManager.Instance.Play("ButtonHover");
     }
 
     private void Update()

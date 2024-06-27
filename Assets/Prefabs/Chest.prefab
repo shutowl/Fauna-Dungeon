@@ -37,7 +37,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 108}
+  m_AnchoredPosition: {x: 0, y: 136.27}
   m_SizeDelta: {x: 272.9041, y: 272.5343}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2124749256028086254
@@ -61,14 +61,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.7491, b: 0.4198113, a: 1}
+  m_Color: {r: 1, g: 0.83069867, b: 0.6084906, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d0d4fb6aa198ce549b698e19026647a9, type: 3}
+  m_Sprite: {fileID: -1566065683, guid: a8a37f57d7cb73846980e159f93aa76c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -148,7 +148,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openChestText: {fileID: 7762637055454918202}
   chestSprite: {fileID: 9036489614125053767}
-  openChestImage: {fileID: 21300000, guid: cfb33f663e4d0794f96e7523ece21813, type: 3}
+  openChestImage: {fileID: -1619819149, guid: a8a37f57d7cb73846980e159f93aa76c, type: 3}
 --- !u!1 &7762637055454918202
 GameObject:
   m_ObjectHideFlags: 0

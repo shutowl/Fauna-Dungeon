@@ -52,6 +52,7 @@ public class Item : MonoBehaviour
 
             inInventory = true;
             Debug.Log(itemName + " obtained!");
+            AudioManager.Instance.Play("ButtonClick");
         }
         else
         {
@@ -106,6 +107,7 @@ public class Item : MonoBehaviour
                     case 3: dungeonController.GetComponent<DungeonController>().enemy.GetComponent<Enemy>().Damage(4, 2.5f); break;
                 }
                 dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().IncreaseMaxRerolls(-1);
+                battleController.UpdateUIText();
             }
 
             //Knife (deal 4 dmg)
@@ -135,6 +137,7 @@ public class Item : MonoBehaviour
             battleController.SetTimer(1f);
             dungeonController.GetComponent<DungeonController>().inventoryWindow.GetComponent<InventoryController>().CloseInventory();
             Destroy(this.gameObject);
+            AudioManager.Instance.Play("ButtonClick");
         }
     }
 }
