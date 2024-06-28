@@ -247,6 +247,7 @@ public class BattleController : MonoBehaviour
             if(moveButtonsToo) MoveButtons(true, delay + 0.5f);
 
             currentState = State.idle;
+            battleStep = 0;
         }
         else
         {

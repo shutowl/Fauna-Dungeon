@@ -9917,10 +9917,10 @@ RectTransform:
   - {fileID: 421348121}
   - {fileID: 1172938089}
   - {fileID: 1529881376}
-  - {fileID: 2057817461}
-  - {fileID: 1333164195}
   - {fileID: 467515308}
   - {fileID: 495829372}
+  - {fileID: 2057817461}
+  - {fileID: 1333164195}
   m_Father: {fileID: 1965362943}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
