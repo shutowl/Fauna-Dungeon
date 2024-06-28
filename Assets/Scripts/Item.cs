@@ -52,7 +52,7 @@ public class Item : MonoBehaviour
 
             inInventory = true;
             Debug.Log(itemName + " obtained!");
-            AudioManager.Instance.Play("ButtonClick");
+            AudioManager.Instance.Play("GetItem");
         }
         else
         {
@@ -67,13 +67,13 @@ public class Item : MonoBehaviour
             if (itemName.Equals("Blue Clock"))
             {
                 dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().IncrementTurn(3);
+                AudioManager.Instance.Play("GetItem");
             }
 
             //Cat plushie (heal 5 hp)
             else if(itemName.Equals("Cat Plushie"))
             {
-                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().Heal(5);
-            }
+                dungeonController.GetComponent<DungeonController>().player.GetComponent<PlayerController>().Heal(5);            }
 
             //Chaotic Dice (4 random actions)
             else if(itemName.Equals("Chaotic Dice"))

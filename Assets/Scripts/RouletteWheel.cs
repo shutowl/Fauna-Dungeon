@@ -62,6 +62,7 @@ public class RouletteWheel : MonoBehaviour
                 spinRate += 0.005f;
 
                 spinRateTimer = spinRate;
+                AudioManager.Instance.PlayOneShot("SlotTick");
             }
 
             if(spinTimer <= 0)

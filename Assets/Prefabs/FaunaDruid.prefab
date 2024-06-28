@@ -95,3 +95,12 @@ MonoBehaviour:
   maxRerolls: 0
   currentRerolls: 0
   abilityTexts: []
+  damageIndicator: {fileID: 3077486094840710663, guid: ce4c66c270fc22647b254722db98d750, type: 3}
+  diceHeld: 0
+  knifeHeld: 0
+  pebbleHeld: 0
+  ATKSaplingTurnsLeft: 0
+  DEFSaplingTurnsLeft: 0
+  enhanceTurnsLeft: 0
+  blockTurnsLeft: 0
+  counterTurnsLeft: 0

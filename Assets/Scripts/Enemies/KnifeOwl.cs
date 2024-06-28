@@ -37,6 +37,7 @@ public class KnifeOwl : Enemy
     {
         Debug.Log("Owl Nothing");
         battleController.SetTimer(delay);
+        AudioManager.Instance.Play("Hoot");
     }
 
     //Peck
@@ -96,6 +97,7 @@ public class KnifeOwl : Enemy
         player.GetComponent<PlayerController>().Damage(value, delay);
 
         battleController.SetTimer(delay + 1f);
+        AudioManager.Instance.Play("Horror", delay);
         Debug.Log("Owl Jumpscare");
     }
 

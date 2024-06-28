@@ -92,6 +92,7 @@ MonoBehaviour:
   HP: 10
   DEF: 0
   itemDropped: {fileID: 3596759878101137303, guid: 58004c0a63336d7478ea29318516e0b8, type: 3}
+  damageIndicator: {fileID: 3077486094840710663, guid: ce4c66c270fc22647b254722db98d750, type: 3}
   abilities:
   - Stares at you (Nothing)
   - Harden (+1 DEF for 1 turn)

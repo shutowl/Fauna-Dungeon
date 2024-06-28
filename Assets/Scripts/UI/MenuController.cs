@@ -13,6 +13,9 @@ public class MenuController : MonoBehaviour
     public float buttonMoveDuration = 2f;
     float buttonMoveTimer = 0f;
 
+    public GameObject titlePlayer;
+    float playerfloatTimer = 4f;
+
     private void Start()
     {
         logo.GetComponent<RectTransform>().anchoredPosition = new Vector3(logo.GetComponent<RectTransform>().anchoredPosition.x, Mathf.Abs(logo.GetComponent<RectTransform>().anchoredPosition.y));
@@ -21,7 +24,12 @@ public class MenuController : MonoBehaviour
         buttons[2].GetComponent<RectTransform>().anchoredPosition = new Vector3(-buttons[2].GetComponent<RectTransform>().anchoredPosition.x, buttons[2].GetComponent<RectTransform>().anchoredPosition.y);
         MoveButtons(true);
 
-        AudioManager.Instance.ChangeSFXVolume(0.05f);
+        titlePlayer.GetComponent<RectTransform>().anchoredPosition = new Vector2(titlePlayer.GetComponent<RectTransform>().anchoredPosition.x, Mathf.Abs(titlePlayer.GetComponent<RectTransform>().anchoredPosition.y));
+        titlePlayer.GetComponent<RectTransform>().DOAnchorPosY(-Mathf.Abs(titlePlayer.GetComponent<RectTransform>().anchoredPosition.y), 2f).SetEase(Ease.OutSine);
+        titlePlayer.GetComponent<TextHover>().enabled = false;
+        playerfloatTimer = 2f;
+
+        AudioManager.Instance.ChangeSFXVolume(0.1f);
         AudioManager.Instance.ChangeBGMVolume(0.05f);
         AudioManager.Instance.PlayMusic("LMSHCalm");
     }
@@ -38,9 +46,14 @@ public class MenuController : MonoBehaviour
             logo.GetComponent<TextHover>().enabled = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if(playerfloatTimer > 0)
         {
-            AudioManager.Instance.Play("ButtonClick");
+            playerfloatTimer -= Time.deltaTime;
+            titlePlayer.GetComponent<TextHover>().enabled = false;
+        }
+        else
+        {
+            titlePlayer.GetComponent<TextHover>().enabled = true;
         }
     }
 
@@ -51,7 +64,7 @@ public class MenuController : MonoBehaviour
         MoveButtons(false);
         StartCoroutine(DelayedLoadScene(buttonMoveDuration, "Dungeon"));
 
-        AudioManager.Instance.Play("ButtonClick");
+        AudioManager.Instance.Play("StartGame");
     }
 
     public void MoveButtons(bool onscreen)
@@ -85,7 +98,7 @@ public class MenuController : MonoBehaviour
         if(buttonMoveTimer <= 0)
         {
             curtain.GetComponent<RectTransform>().DOAnchorPosY(-curtain.GetComponent<RectTransform>().anchoredPosition.y, 1f).SetEase(Ease.OutCubic).SetDelay(1f);
-            AudioManager.Instance.Play("Curtain");
+            AudioManager.Instance.Play("Curtain", 1f);
         }
     }
 

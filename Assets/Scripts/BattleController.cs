@@ -77,8 +77,15 @@ public class BattleController : MonoBehaviour
                 //Item
                 if (EventSystem.current.currentSelectedGameObject == battleButtons[1])
                 {
-                    ItemButton();
-                    currentState = State.inventory;
+                    if (!dungeonController.InventoryEmpty())
+                    {
+                        ItemButton();
+                        currentState = State.inventory;
+                    }
+                    else
+                    {
+                        AudioManager.Instance.Play("Error");
+                    }
                 }
                 //Run
                 if (EventSystem.current.currentSelectedGameObject == battleButtons[2])
@@ -232,6 +239,7 @@ public class BattleController : MonoBehaviour
         playerController.IncreaseMaxRerolls(0);
         curRerollText.text = "" + playerController.GetCurrentRerolls();
         maxRerollText.text = "/" + playerController.GetMaxRerolls();
+        playerController.ResetTurns();
 
         if (onscreen)
         {
@@ -288,6 +296,7 @@ public class BattleController : MonoBehaviour
         MoveButtons(false, 0);
         dungeonController.MoveRouletteWindow(1f, "player");
         rouletteWheel.SetupPlayerAttacks();
+        AudioManager.Instance.Play("ButtonClick");
     }
     public void ItemButton()
     {
@@ -295,10 +304,11 @@ public class BattleController : MonoBehaviour
         MoveButtons(false, 0);
         dungeonController.inventoryWindow.GetComponent<InventoryController>().OpenInventory(true);
         GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
-        foreach(GameObject button in items)
+        foreach (GameObject button in items)
         {
             button.GetComponent<Button>().interactable = true;
         }
+        AudioManager.Instance.Play("ButtonClick");
     }
     public void RunButton()
     {
@@ -310,6 +320,7 @@ public class BattleController : MonoBehaviour
         runSlider.value = 0;
         runSlider.minValue = 0;
         runSlider.maxValue = runMaxValue;
+        AudioManager.Instance.Play("ButtonClick");
     }
 
     //Final boss will destroy the run button >:)

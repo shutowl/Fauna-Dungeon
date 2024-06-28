@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected int DEF;
 
     public GameObject itemDropped;
+    public GameObject damageIndicator;
 
     public string[] abilities;
     public int[] abilityValues;
@@ -79,6 +80,9 @@ public class Enemy : MonoBehaviour
         {
             HP = Mathf.Clamp(HP - Mathf.Clamp(value - DEF, 0, 100), 0, 100);
             AudioManager.Instance.Play("Punch");
+            GameObject dmgIndicator = Instantiate(damageIndicator, transform);
+            dmgIndicator.GetComponent<DamageIndicator>().SetDirection(1);
+            dmgIndicator.GetComponent<DamageIndicator>().SetText(Mathf.Clamp(value - DEF, 0, 100));
         }
 
         if (HP <= 0)

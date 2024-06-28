@@ -67,6 +67,36 @@ public class AudioManager : MonoBehaviour
         }
 	}
 
+	// Will only play one identical sound at a time
+	public void Play(string name, float delay)
+	{
+		AudioClip clip = null;
+		for (int i = 0; i < sounds.Length; i++)
+		{
+			if (name.Equals(sounds[i].name))
+			{
+				clip = sounds[i].clip;
+
+				if (currentClip != clip)
+				{
+					currentClip = clip;
+					StartCoroutine(DelayedPlay(name, delay));
+				}
+				else
+				{
+					effectsSource.Stop();
+					StartCoroutine(DelayedPlay(name, delay));
+				}
+
+				break;
+			}
+		}
+		if (clip == null)
+		{
+			Debug.LogError("Sound named '" + name + "' not found! (Check for typos?)");
+		}
+	}
+
 	// Will overlap if played with other sounds
 	public void PlayOneShot(string name)
     {
@@ -176,6 +206,12 @@ public class AudioManager : MonoBehaviour
 		{
 			PlayMusic("LMSHCalm", musicSource.time);
 		}
+	}
+
+	IEnumerator DelayedPlay(string name, float delay)
+    {
+		yield return new WaitForSeconds(delay);
+		AudioManager.Instance.Play(name);
 	}
 }
 

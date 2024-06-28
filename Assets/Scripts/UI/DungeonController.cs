@@ -138,11 +138,14 @@ public class DungeonController : MonoBehaviour
                     abilityTexts[4].text = "Summon DEF Sapling (Grants +[1] DEF for 3 turns)";
                     abilityTexts[5].text = "Ara ara (Sapling powers are twice as effective for 4 turns)";
 
+                    statText.text = "Max HP: 10\nMax Rerolls: 3";
+
                     playerClass = "druid";
 
                     startButton.gameObject.SetActive(true);
 
                     SpawnPlayer(playerClasses[0]);
+                    AudioManager.Instance.Play("ButtonClick");
                 }
                 //Brawler Selected
                 else if (EventSystem.current.currentSelectedGameObject == classButtons[1])
@@ -157,11 +160,14 @@ public class DungeonController : MonoBehaviour
                     abilityTexts[4].text = "Slap (Deal [2] DMG)";
                     abilityTexts[5].text = "Double Slap (Deal [2] DMG twice)";
 
+                    statText.text = "Max HP: 15\nMax Rerolls: 2";
+
                     playerClass = "brawler";
 
                     startButton.gameObject.SetActive(true);
 
                     SpawnPlayer(playerClasses[1]);
+                    AudioManager.Instance.Play("ButtonClick");
                 }
                 else if (EventSystem.current.currentSelectedGameObject == null)
                 {
@@ -627,6 +633,8 @@ public class DungeonController : MonoBehaviour
         StartCoroutine(LockCursor(2f));
 
         currentState = DungeonState.map;
+        AudioManager.Instance.Play("StartGame");
+
     }
 
     IEnumerator DelayedLoadScene(float sec, string scene)
@@ -723,6 +731,7 @@ public class DungeonController : MonoBehaviour
         playerPosition.transform.DOMove(playerRoomPosition.transform.position + new Vector3(-1920, 0), 1f).SetDelay(3.5f);
         */
         AudioManager.Instance.SwitchBGM();
+        AudioManager.Instance.Play("ButtonClick");
     }
 
     public void MoveItemWindow(float delay, bool chest)
@@ -858,7 +867,7 @@ public class DungeonController : MonoBehaviour
         {
             curtain.GetComponent<RectTransform>().DOAnchorPosY(613, 1f).SetEase(Ease.InCubic).SetDelay(delay);
         }
-        AudioManager.Instance.Play("Curtain");
+        AudioManager.Instance.Play("Curtain", 1f);
     }
 
     public void MoveRouletteWindow(float delay, string type)
@@ -919,5 +928,14 @@ public class DungeonController : MonoBehaviour
     public GameObject GetPlayer()
     {
         return player;
+    }
+
+    public bool InventoryEmpty()
+    {
+        foreach(bool filled in inventoryFilled)
+        {
+            if (filled) return false;
+        }
+        return true;
     }
 }

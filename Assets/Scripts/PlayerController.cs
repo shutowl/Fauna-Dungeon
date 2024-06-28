@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     private bool[] upgradable;
     bool[] offensive;
     float[] abilityLength;
+    public GameObject damageIndicator;
 
     DungeonController dungeonController;
     BattleController battleController;
@@ -266,6 +267,7 @@ public class PlayerController : MonoBehaviour
     {
         currentHP = Mathf.Clamp(currentHP + value, 0, maxHP);
         battleController.UpdateUIText();
+        AudioManager.Instance.Play("Heal");
     }
 
     public void IncreaseMaxHP(int value)
@@ -296,9 +298,14 @@ public class PlayerController : MonoBehaviour
     IEnumerator DelayedDamage(int value, float delay)
     {
         yield return new WaitForSeconds(delay);
-        if(pebbleHeld) currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - (DEF + 1)), 0, 10)), 0, maxHP);
-        else currentHP = Mathf.Clamp(currentHP - (Mathf.Clamp((value - DEF), 0, 10)), 0, maxHP);
+        int dmgTaken;
+        if(pebbleHeld) dmgTaken = Mathf.Clamp((value - (DEF + 1)), 0, 10);
+        else dmgTaken = Mathf.Clamp((value - DEF), 0, 10);
+        currentHP = Mathf.Clamp(currentHP - dmgTaken, 0, 20);
         AudioManager.Instance.Play("Punch");
+        GameObject dmgIndicator = Instantiate(damageIndicator, transform);
+        dmgIndicator.GetComponent<DamageIndicator>().SetDirection(-1);
+        dmgIndicator.GetComponent<DamageIndicator>().SetText(dmgTaken);
 
         //Brawler Counter
         if (counterOn)
@@ -309,7 +316,7 @@ public class PlayerController : MonoBehaviour
             AudioManager.Instance.Play("Punch");
         }
 
-        if (currentHP == 0)
+        if (currentHP <= 0)
         {
             //game over
             gameOverController.InitiateGameOver(dungeonController.playerPosition.gameObject);
@@ -356,8 +363,8 @@ public class PlayerController : MonoBehaviour
 
         //Damage Enemy
         GameObject enemy = GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().enemy;
-        if(knifeHeld) enemy.GetComponent<Enemy>().Damage(abilityValues[4] + 1, 0.75f + delay);
-        else enemy.GetComponent<Enemy>().Damage(abilityValues[4], 0.75f + delay);
+        if(knifeHeld) enemy.GetComponent<Enemy>().Damage(abilityValues[2] + 1, 0.75f + delay);
+        else enemy.GetComponent<Enemy>().Damage(abilityValues[2], 0.75f + delay);
 
         battleController.SetTimer(delay);
         Debug.Log("Player vine");
@@ -403,6 +410,7 @@ public class PlayerController : MonoBehaviour
         //Small Jump
         RectTransform rect = GetComponent<RectTransform>();
         rect.DOJumpAnchorPos(new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y), 50, 1, 0.3f).SetDelay(delay);
+        AudioManager.Instance.Play("AraAra" + Random.Range(0, 2), 1f);
 
         enhanceTurnsLeft = 4;
         if (enhanceTurnsLeft > 0)
@@ -646,5 +654,14 @@ public class PlayerController : MonoBehaviour
             DEF = 0;
             counterOn = false;
         }
+    }
+
+    public void ResetTurns()
+    {
+        ATKSaplingTurnsLeft = 0;
+        DEFSaplingTurnsLeft = 0;
+        enhanceTurnsLeft = 0;
+        blockTurnsLeft = 0;
+        counterTurnsLeft = 0;
     }
 }

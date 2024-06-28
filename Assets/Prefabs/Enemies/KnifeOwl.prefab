@@ -93,6 +93,7 @@ MonoBehaviour:
   HP: 10
   DEF: 0
   itemDropped: {fileID: 3596759878101137303, guid: 000988ab69d9d7b4bbb334a2e850c139, type: 3}
+  damageIndicator: {fileID: 3077486094840710663, guid: ce4c66c270fc22647b254722db98d750, type: 3}
   abilities:
   - Hoots (Nothing)
   - Peck (1 DMG)

@@ -26,12 +26,13 @@ public class GameOver : MonoBehaviour
         gameObject.SetActive(true);
         this.player = player;
         GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().playerPosition.transform.SetParent(this.transform);
-        GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().playerPosition.transform.DOMove(Vector2.zero, 3).SetEase(Ease.OutCubic);
+        GameObject.FindGameObjectWithTag("DungeonController").GetComponent<DungeonController>().playerPosition.GetComponent<RectTransform>().DOAnchorPos(Vector2.zero, 3).SetEase(Ease.OutCubic);
         backgroundColor.DOColor(new Color(0, 0, 0, 0.5f), 2f).SetEase(Ease.OutCubic);
 
         gameOverText.GetComponent<RectTransform>().DOAnchorPosY(-200, 2).SetEase(Ease.OutBounce).SetDelay(3f);
 
         StartCoroutine(ShowButtons(5f));
+        Debug.Log("Game Over :(");
     }
 
     IEnumerator ShowButtons(float delay)
